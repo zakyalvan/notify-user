@@ -1,0 +1,47 @@
+package com.innovez.core.notif.annotation;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
+import com.innovez.core.notif.support.NotificationFactory;
+
+/**
+ * Annotation type to be used on notification creation process. Factory class
+ * can be resolved from application context if bean name given on annotation's
+ * {@link #bean()} attribute
+ * 
+ * @author zakyalvan
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface Factory {
+	/**
+	 * Type of factory.
+	 * 
+	 * @return
+	 */
+	Class<? extends NotificationFactory> type();
+
+	/**
+	 * SpEL expression to be evaluated, if evaluated to boolean true, publishing
+	 * notification can be proceed further.
+	 * 
+	 * @return
+	 */
+	String selector() default "true";
+
+	/**
+	 * Bean name if the factory should be resolved from application context.
+	 * 
+	 * @return
+	 */
+	String bean() default "";
+
+	/**
+	 * Parameter declaration to be used in notification factory process.
+	 * 
+	 * @return
+	 */
+	Parameter[] parameters() default {};
+}
