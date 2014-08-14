@@ -19,5 +19,5 @@ import org.springframework.context.annotation.Import;
 @Documented
 @Import({NotificationConfiguration.class})
 public @interface EnableNotification {
-
+	boolean enableActiveMQ() default true;
 }

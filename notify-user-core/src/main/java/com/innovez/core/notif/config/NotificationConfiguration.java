@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
 
-import com.innovez.core.notif.DefaultNotificationService;
+import com.innovez.core.notif.ActiveMQBrokerBackedNotificationManager;
 import com.innovez.core.notif.NotificationSender;
 import com.innovez.core.notif.aspects.PublishNotificationAnnotatedAdvisor;
 import com.innovez.core.notif.email.EmailNotificationSender;
@@ -25,8 +25,8 @@ public class NotificationConfiguration implements ApplicationContextAware {
 	private ApplicationContext applicationContext;
 	
 	@Bean
-	public DefaultNotificationService notificationService() {
-		DefaultNotificationService notificationService = new DefaultNotificationService();
+	public ActiveMQBrokerBackedNotificationManager notificationManager() {
+		ActiveMQBrokerBackedNotificationManager notificationService = new ActiveMQBrokerBackedNotificationManager();
 		Map<String, NotificationSender> notificationSenders = new HashMap<String, NotificationSender>();
 		
 		JavaMailSender mailSender = applicationContext.getBean(JavaMailSender.class);

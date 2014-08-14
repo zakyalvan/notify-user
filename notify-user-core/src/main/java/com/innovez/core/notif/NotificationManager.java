@@ -8,7 +8,7 @@ import java.util.Collection;
  * 
  * @author zakyalvan
  */
-public interface NotificationService {
+public interface NotificationManager {
 	/**
 	 * Send one notification.
 	 * 

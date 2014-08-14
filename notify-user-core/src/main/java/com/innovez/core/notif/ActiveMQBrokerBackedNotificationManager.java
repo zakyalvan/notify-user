@@ -13,12 +13,12 @@ import org.springframework.util.Assert;
 import com.innovez.core.notif.event.NotificationEvent;
 
 /**
- * Default implementation of {@link NotificationService}.
+ * Default implementation of {@link NotificationManager}.
  * 
  * @author zakyalvan
  */
-public class DefaultNotificationService implements NotificationService, ApplicationListener<NotificationEvent<?>> {
-	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultNotificationService.class);
+public class ActiveMQBrokerBackedNotificationManager implements NotificationManager, ApplicationListener<NotificationEvent<?>> {
+	private static final Logger LOGGER = LoggerFactory.getLogger(ActiveMQBrokerBackedNotificationManager.class);
 	
 	private Map<String, NotificationSender> notificationSenders = new HashMap<String, NotificationSender>();
 	

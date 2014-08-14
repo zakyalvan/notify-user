@@ -2,6 +2,8 @@ package com.innovez.core.notif.aspects;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,13 +14,14 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import com.innovez.core.notif.Notification;
-import com.innovez.core.notif.NotificationService;
+import com.innovez.core.notif.NotificationManager;
 import com.innovez.core.notif.annotation.Definition;
 import com.innovez.core.notif.annotation.Factory;
 import com.innovez.core.notif.annotation.Named;
@@ -45,7 +48,7 @@ public aspect PublishNotificationAnnotatedAdvisor implements ApplicationContextA
 	private ApplicationContext applicationContext;
 	
 	@Autowired
-	private NotificationService notificationService;
+	private NotificationManager notificationService;
 	
 	/**
 	 * Point-cut to select all {@link PublishNotification} annotated methods.
@@ -63,15 +66,11 @@ public aspect PublishNotificationAnnotatedAdvisor implements ApplicationContextA
 	Object around(Object targetObject, PublishNotification publishNotification) : publishNotificationAnnotatedMethods(targetObject, publishNotification) {
 		LOGGER.debug("Before execution of publish notification method with name '{}', prepare evaluation context.", publishNotification.name());
 		
-		/**
-		 * Create SpEL evaluation context with advised join point target object as root object.
-		 */
-		StandardEvaluationContext evalContext = new StandardEvaluationContext(targetObject);
+		LOGGER.debug("Create SpEL evaluation context with advised join point target object as root object.");
+		StandardEvaluationContext evaluationContext = new StandardEvaluationContext(targetObject);
 		Map<String, Object> evalContextVars = new HashMap<String, Object>();
 		
-		/**
-		 * Add all method arguments as SpEL evaluation context variables with name 'args'.
-		 */
+		LOGGER.debug("Add, by default, all method arguments as SpEL evaluation context variables with name 'args'.");
 		Object[] methodArgs = thisJoinPoint.getArgs();
 		evalContextVars.put("args", methodArgs);
 		
@@ -79,96 +78,110 @@ public aspect PublishNotificationAnnotatedAdvisor implements ApplicationContextA
 		Method method = methodSignature.getMethod();
 		Annotation[][] methodArgsAnnotations = method.getParameterAnnotations();
 		
-		/**
-		 * Looking for method arguments annotated with @Named and add them as variable in SpEL evaluation context.
-		 */
+		LOGGER.debug("Looking for @Named annoatated method arguments and add them as variable in SpEL evaluation context.");
 		for(int i = 0; i < methodArgs.length; i++) {
 			Annotation[] argAnnotations = methodArgsAnnotations[i];
 			for(Annotation methodArgAnnotation : argAnnotations) {
 				if(methodArgAnnotation instanceof Named) {
 					String overrideArgName = ((Named) methodArgAnnotation).value();
-					LOGGER.debug("Found @Named argument with name {} and value {}. Add as SpEL evaluation context variable", 
-							overrideArgName, 
-							methodArgs[i]);
+					LOGGER.debug("Found @Named argument with name {} and value {}. Add as SpEL evaluation context variable", overrideArgName, methodArgs[i]);
 					evalContextVars.put(overrideArgName, methodArgs[i]);
 				}
 			}
 		}
 		
-		/**
-		 * Proceed the method execution on advised join point.
-		 */
+		LOGGER.debug("Proceed the method {}.{} execution on advised join point", methodSignature.getDeclaringTypeName(), methodSignature.getName());
 		Object returnedObject = proceed(targetObject, publishNotification);
-		
-		/**
-		 * Add returned object as SpEL evaluation context variable with name 'ret'
-		 */
+			
+		LOGGER.debug("Add returned object as SpEL evaluation context variable with name 'ret'");
 		evalContextVars.put("ret", returnedObject);
 		
-		evalContext.setVariables(evalContextVars);
-		
-		/**
-		 * Now, parse and resolve global parameters.
-		 */
-		LOGGER.debug("Parse and resolve global parameters, based on parameters attribute of PublishNotification annotation");
-		Map<String, Object> globalParams = new HashMap<String, Object>();
-		for(Parameter parameter : publishNotification.parameters()) {
-			String parameterExpressionString = parameter.expression();
-			Expression parameterExpression = expressionParser.parseExpression(parameterExpressionString);
-			globalParams.put(parameter.name(), parameterExpression.getValue(evalContext));
-		}
+		evaluationContext.setVariables(evalContextVars);
 		
 		LOGGER.debug("After execution of advised method on target object, here we start sends the notifications");
+		Map<String, Object> globalParameters = evaluateParameters(Arrays.asList(publishNotification.parameters()), evaluationContext, new HashMap<String, Object>());
+		processDefinitionDeclarations(Arrays.asList(publishNotification.definitions()), evaluationContext, globalParameters);
+		processFactoryDeclarations(Arrays.asList(publishNotification.factories()), evaluationContext, globalParameters);
 		
+		return returnedObject;
+	}
+	
+	/**
+	 * Evaluate parameters.
+	 * 
+	 * @param parameterAnnotations
+	 * @param evaluationContext
+	 * @param globalParameters
+	 * @return
+	 */
+	private Map<String, Object> evaluateParameters(Collection<Parameter> parameterAnnotations, EvaluationContext evaluationContext, Map<String, Object> globalParameters) {
+		LOGGER.debug("Starting parameters evaluation");
+		
+		Map<String, Object> evaluatedParams = new HashMap<String, Object>();
+		if(globalParameters != null) {
+			evaluatedParams.putAll(globalParameters);
+		}
+		
+		for(Parameter parameter : parameterAnnotations) {
+			String parameterExpressionString = parameter.expression();
+			Expression parameterExpression = expressionParser.parseExpression(parameterExpressionString);
+			evaluatedParams.put(parameter.name(), parameterExpression.getValue(evaluationContext));
+		}
+		return evaluatedParams;
+	}
+
+	/**
+	 * Process all {@link Definition} declarations.
+	 * 
+	 * @param definitionAnnotations
+	 * @param evaluationContext
+	 * @param globalParameters
+	 * @return
+	 */
+	private Collection<Notification> processDefinitionDeclarations(Collection<Definition> definitionAnnotations, EvaluationContext evaluationContext, Map<String, Object> globalParameters) {
 		LOGGER.debug("Process all declared definitions, create notification object for each of them");
-		for(Definition definition : publishNotification.definitions()) {
+		for(Definition definition : definitionAnnotations) {
 			String selectorExpressionString = definition.selector();
 			if(selectorExpressionString.trim().isEmpty()) {
 				selectorExpressionString = "false";
 			}
 			
 			Expression selectorExpression = expressionParser.parseExpression(selectorExpressionString);
-			if(selectorExpression.getValue(evalContext, Boolean.class)) {
-				LOGGER.debug("Definition selector string '{}' evaluated to true, process definition further", selectorExpressionString);
-				
-				
-			}
-			else {
+			if(!selectorExpression.getValue(evaluationContext, Boolean.class)) {
 				LOGGER.debug("Definition selector string '{}' evaluated to false, abort processing", selectorExpressionString);
+				continue;
 			}
+			
+			LOGGER.debug("Definition selector string '{}' evaluated to true, process definition further", selectorExpressionString);
+			
 		}
+		return null;
+	}
+	
+	/**
+	 * Process all {@link Factory} declarations.
+	 * 
+	 * @param factoryAnnotations
+	 * @param evaluationContext
+	 * @param globalParameters
+	 * @return
+	 */
+	private Collection<Notification> processFactoryDeclarations(Collection<Factory> factoryAnnotations, EvaluationContext evaluationContext, Map<String, Object> globalParameters) {
+		LOGGER.debug("Process all declared factories, create notification object by dispatching all of them");
 		
-		LOGGER.debug("Process all declared factories, create notification object by dispatching all of them (Wit)");
-		for(Factory factory : publishNotification.factories()) {
+		for(Factory factory : factoryAnnotations) {
 			String selectorExpressionString = factory.selector();
 			if(selectorExpressionString.trim().isEmpty()) {
 				selectorExpressionString = "false";
 			}
 			
 			Expression selectorExpression = expressionParser.parseExpression(selectorExpressionString);
-			if(!selectorExpression.getValue(evalContext, Boolean.class)) {
+			if(!selectorExpression.getValue(evaluationContext, Boolean.class)) {
 				LOGGER.debug("Factory selector string '{}' evaluated to false, processing aborted", selectorExpressionString);
 				continue;
 			}
 
-			LOGGER.debug("Factory selector string '{}' evaluated to true, process further with notification factory", selectorExpressionString);
-			
-			/**
-			 * Parse and resolve factory parameters. Factory parameters are
-			 * inheriting global parameters.
-			 */
-			Map<String, Object> factoryParams = new HashMap<String, Object>(globalParams);
-			for (Parameter factoryParam : factory.parameters()) {
-				String factoryParamExpressionString = factoryParam.expression();
-				if(!factoryParamExpressionString.trim().isEmpty()) {
-					Expression factoryParamExpression = expressionParser.parseExpression(factoryParamExpressionString);
-					factoryParams.put(factoryParam.name(), factoryParamExpression.getValue(evalContext));
-				}
-			}
-
-			/**
-			 * Create factory object for notification.
-			 */
+			LOGGER.debug("Create notification factory object.");
 			Class<? extends NotificationFactory> factoryType = factory.type();
 			String beanName = factory.bean();
 
@@ -178,7 +191,7 @@ public aspect PublishNotificationAnnotatedAdvisor implements ApplicationContextA
 					factoryObject = applicationContext.getBean(beanName, factoryType);
 				}
 				catch (Exception e) {
-					LOGGER.error("Cant resoleve bean with type {} and name {} from application context", factoryType.getName(), beanName);
+					LOGGER.error("Cant resolve bean with type {} and name {} from application context", factoryType.getName(), beanName);
 					e.printStackTrace();
 				}
 			}
@@ -192,9 +205,12 @@ public aspect PublishNotificationAnnotatedAdvisor implements ApplicationContextA
 				}
 			}
 
-			if (factoryObject != null && factoryObject.canCreateNotification(factoryParams)) {
-				LOGGER.debug("Create notification object, using notification factory type {} and parameters {}", factoryType.getName(), factoryParams.toString());
-				Notification notification = factoryObject.createNotification(factoryParams);
+			LOGGER.debug("Parse and resolve factory parameters. Factory parameters are inheriting global parameters");
+			Map<String, Object> factoryParameters = evaluateParameters(Arrays.asList(factory.parameters()), evaluationContext, globalParameters);
+			
+			if (factoryObject != null && factoryObject.canCreateNotification(factoryParameters)) {
+				LOGGER.debug("Create notification object, using notification factory type {} and parameters {}", factoryType.getName(), factoryParameters.toString());
+				Notification notification = factoryObject.createNotification(factoryParameters);
 				
 				LOGGER.debug("Send the notification now!");
 				notificationService.sendNotification(notification);
@@ -204,9 +220,9 @@ public aspect PublishNotificationAnnotatedAdvisor implements ApplicationContextA
 			}
 		}
 		
-		return returnedObject;
+		return null;
 	}
-
+	
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		LOGGER.debug("Application context object injected");
