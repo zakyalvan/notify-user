@@ -2,15 +2,19 @@ package com.innovez.core.notif.aspects;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -27,6 +31,8 @@ import com.innovez.core.notif.annotation.Factory;
 import com.innovez.core.notif.annotation.Named;
 import com.innovez.core.notif.annotation.Parameter;
 import com.innovez.core.notif.annotation.PublishNotification;
+import com.innovez.core.notif.config.EvaluationContextVariableRegistrar;
+import com.innovez.core.notif.config.EvaluationContextVariableRegistrar.EvaluationContextVariableRegistry;
 import com.innovez.core.notif.support.NotificationFactory;
 
 /**
@@ -34,13 +40,20 @@ import com.innovez.core.notif.support.NotificationFactory;
  * 
  * @author zakyalvan
  */
-public aspect PublishNotificationAnnotatedAdvisor implements ApplicationContextAware {
+public aspect PublishNotificationAnnotatedAdvisor implements ApplicationContextAware, InitializingBean {
 	private static final Logger LOGGER = LoggerFactory.getLogger(PublishNotificationAnnotatedAdvisor.class);
+	
+	private static final Collection<String> RESERVED_EVAL_CONTEXT_VARIABLE_NAMES = new HashSet<String>(Arrays.asList("args", "ret"));
 	
 	/**
 	 * SpEL expression parser, used for parsing parameters value, based on declaration.
 	 */
 	private ExpressionParser expressionParser = new SpelExpressionParser();
+	
+	/**
+	 * Custom variables in for evaluation context, used on evaluates notification parameters.
+	 */
+	private Map<String, Object> customEvaluationContextVariables = new HashMap<String, Object>();
 	
 	/**
 	 * Application context, we'll resolve factory object via this context
@@ -49,6 +62,9 @@ public aspect PublishNotificationAnnotatedAdvisor implements ApplicationContextA
 	
 	@Autowired
 	private NotificationManager notificationService;
+	
+	@Autowired(required=false)
+	private Set<EvaluationContextVariableRegistrar> contextVariableRegistrars;
 	
 	/**
 	 * Point-cut to select all {@link PublishNotification} annotated methods.
@@ -92,11 +108,11 @@ public aspect PublishNotificationAnnotatedAdvisor implements ApplicationContextA
 		
 		LOGGER.debug("Proceed the method {}.{} execution on advised join point", methodSignature.getDeclaringTypeName(), methodSignature.getName());
 		Object returnedObject = proceed(targetObject, publishNotification);
-			
+		
 		LOGGER.debug("Add returned object as SpEL evaluation context variable with name 'ret'");
 		evalContextVars.put("ret", returnedObject);
-		
 		evaluationContext.setVariables(evalContextVars);
+		
 		
 		LOGGER.debug("After execution of advised method on target object, here we start sends the notifications");
 		Map<String, Object> globalParameters = evaluateParameters(Arrays.asList(publishNotification.parameters()), evaluationContext, new HashMap<String, Object>());
@@ -117,17 +133,17 @@ public aspect PublishNotificationAnnotatedAdvisor implements ApplicationContextA
 	private Map<String, Object> evaluateParameters(Collection<Parameter> parameterAnnotations, EvaluationContext evaluationContext, Map<String, Object> globalParameters) {
 		LOGGER.debug("Starting parameters evaluation");
 		
-		Map<String, Object> evaluatedParams = new HashMap<String, Object>();
+		Map<String, Object> evaluatedParameters = new HashMap<String, Object>();
 		if(globalParameters != null) {
-			evaluatedParams.putAll(globalParameters);
+			evaluatedParameters.putAll(globalParameters);
 		}
 		
 		for(Parameter parameter : parameterAnnotations) {
 			String parameterExpressionString = parameter.expression();
 			Expression parameterExpression = expressionParser.parseExpression(parameterExpressionString);
-			evaluatedParams.put(parameter.name(), parameterExpression.getValue(evaluationContext));
+			evaluatedParameters.put(parameter.name(), parameterExpression.getValue(evaluationContext));
 		}
-		return evaluatedParams;
+		return evaluatedParameters;
 	}
 
 	/**
@@ -225,7 +241,15 @@ public aspect PublishNotificationAnnotatedAdvisor implements ApplicationContextA
 	
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		LOGGER.debug("Application context object injected");
 		this.applicationContext = applicationContext;
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		EvaluationContextVariableRegistry registry = new EvaluationContextVariableRegistry(RESERVED_EVAL_CONTEXT_VARIABLE_NAMES);
+		for(EvaluationContextVariableRegistrar registrar : applicationContext.getBeansOfType(EvaluationContextVariableRegistrar.class).values()) {
+			registrar.registerEvalutionContextVariables(registry);
+		}
+		customEvaluationContextVariables.putAll(registry.getAll());
 	}
 }
