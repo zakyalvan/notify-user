@@ -13,6 +13,12 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
 import org.springframework.util.Assert;
 
+/**
+ * Wrapper for any {@link NotificationSender} to get asynchronous behavior in sending notification.
+ * This behavior gained bay using jms message broker, or exactly ActiveMQ message broker.
+ * 
+ * @author zakyalvan
+ */
 public class JmsBrokerBackedNotificationSenderWrapper implements NotificationSender {
 	private static final Logger LOGGER = LoggerFactory.getLogger(JmsBrokerBackedNotificationSenderWrapper.class);
 
@@ -20,8 +26,8 @@ public class JmsBrokerBackedNotificationSenderWrapper implements NotificationSen
 	private final NotificationSender wrappedNotificationSender;
 	
 	public JmsBrokerBackedNotificationSenderWrapper(JmsTemplate jmsTemplate, NotificationSender wrappedNotificationSender) {
-		Assert.notNull(jmsTemplate);
-		Assert.notNull(wrappedNotificationSender);
+		Assert.notNull(jmsTemplate, "Jms template parameter should not be null");
+		Assert.notNull(wrappedNotificationSender, "Wrapped notification sender parameter should not be null");
 		
 		this.jmsTemplate = jmsTemplate;
 		this.wrappedNotificationSender = wrappedNotificationSender;

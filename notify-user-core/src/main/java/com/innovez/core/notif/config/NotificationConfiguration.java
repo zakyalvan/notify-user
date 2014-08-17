@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.connection.CachingConnectionFactory;
 
 import com.innovez.core.notif.DefaultNotificationManager;
-import com.innovez.core.notif.NotificationBeanFactoryPostProcessor;
 import com.innovez.core.notif.aspects.PublishNotificationAnnotatedAdvisor;
 
 /**
@@ -39,8 +38,8 @@ public class NotificationConfiguration {
 	}
 	
 	@Bean
-	public static NotificationBeanFactoryPostProcessor beanFactoryPostProcessor() {
-		return new NotificationBeanFactoryPostProcessor();
+	public static JmsBrokerSupportBeanFactoryPostProcessor beanFactoryPostProcessor() {
+		return new JmsBrokerSupportBeanFactoryPostProcessor();
 	}
 	
 	@Bean

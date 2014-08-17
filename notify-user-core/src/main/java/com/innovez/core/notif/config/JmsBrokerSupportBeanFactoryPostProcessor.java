@@ -1,11 +1,10 @@
-package com.innovez.core.notif;
+package com.innovez.core.notif.config;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 
 import javax.jms.ConnectionFactory;
-import javax.jms.Session;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,17 +15,22 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.springframework.jms.listener.adapter.MessageListenerAdapter;
 
+import com.innovez.core.notif.DefaultNotificationManager;
+import com.innovez.core.notif.JmsBrokerBackedNotificationSenderWrapper;
+import com.innovez.core.notif.NotificationManager;
+import com.innovez.core.notif.NotificationSender;
+
 /**
- * Post process notification beans, create and register required beans to bean container.
+ * Post process notification beans, create and register required jms related supporting beans to bean container.
  * 
  * @author zakyalvan
  */
-public class NotificationBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
-	private static final Logger LOGGER = LoggerFactory.getLogger(NotificationBeanFactoryPostProcessor.class);
+public class JmsBrokerSupportBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
+	private static final Logger LOGGER = LoggerFactory.getLogger(JmsBrokerSupportBeanFactoryPostProcessor.class);
 	
 	@Override
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-		LOGGER.debug("Post process bean factory.");
+		LOGGER.debug("Post process bean factory, configure and register required beans to bean container (bean factory)");
 		ConnectionFactory connectionFactory = beanFactory.getBean("connectionFactory", ConnectionFactory.class);
 		
 		Map<String, NotificationSender> notificationSendersMap = beanFactory.getBeansOfType(NotificationSender.class);
@@ -48,9 +52,12 @@ public class NotificationBeanFactoryPostProcessor implements BeanFactoryPostProc
 			
 			DefaultMessageListenerContainer listenerContainer = new DefaultMessageListenerContainer();
 			listenerContainer.setConnectionFactory(connectionFactory);
-			listenerContainer.setMaxConcurrentConsumers(1);
-			listenerContainer.setSessionAcknowledgeMode(Session.SESSION_TRANSACTED);
 			listenerContainer.setSessionTransacted(true);
+			/**
+			 * SESSION_TRANSACTED => a fictional value returned from Session.getAcknowledgeMode if the session is transacted. Cannot be set explicitly.
+			 */
+			// listenerContainer.setSessionAcknowledgeMode(Session.SESSION_TRANSACTED);
+			listenerContainer.setMaxConcurrentConsumers(1);
 			listenerContainer.setAcceptMessagesWhileStopping(true);
 			listenerContainer.setMessageListener(listenerAdapter);
 			listenerContainer.setDestinationName(defaultDestinationNameBuilder.toString());
@@ -58,7 +65,7 @@ public class NotificationBeanFactoryPostProcessor implements BeanFactoryPostProc
 			
 			beanFactory.registerSingleton(delegatedNotificationSenderName.concat("ListenerContainer"), listenerContainer);
 		}
-				
+
 		NotificationManager notificationManager = beanFactory.getBean(DefaultNotificationManager.class);
 		Collection<NotificationSender> notificationSenders = new HashSet<NotificationSender>();
 		for(NotificationSender notificationSender : beanFactory.getBeansOfType(JmsBrokerBackedNotificationSenderWrapper.class).values()) {
