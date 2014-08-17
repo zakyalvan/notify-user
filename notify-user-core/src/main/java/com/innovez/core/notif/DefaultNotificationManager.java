@@ -17,11 +17,19 @@ import com.innovez.core.notif.event.NotificationEvent;
  * 
  * @author zakyalvan
  */
-public class ActiveMQBrokerBackedNotificationManager implements NotificationManager, ApplicationListener<NotificationEvent<?>> {
-	private static final Logger LOGGER = LoggerFactory.getLogger(ActiveMQBrokerBackedNotificationManager.class);
+public class DefaultNotificationManager implements NotificationManager, ApplicationListener<NotificationEvent<?>> {
+	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultNotificationManager.class);
 	
-	private Map<String, NotificationSender> notificationSenders = new HashMap<String, NotificationSender>();
+	private Map<String, NotificationSender> mappedNotificationSenders = new HashMap<String, NotificationSender>();
 	
+	@Override
+	public void setNotificationSenders(Collection<NotificationSender> notificationSenders) {
+		mappedNotificationSenders.clear();
+		for(NotificationSender notificationSender : notificationSenders) {
+			mappedNotificationSenders.put(notificationSender.getName(), notificationSender);
+		}
+	}
+
 	@Override
 	public void sendNotification(Notification notification) {
 		Assert.notNull(notification, "Notification object parameter should not be null");
@@ -30,7 +38,7 @@ public class ActiveMQBrokerBackedNotificationManager implements NotificationMana
 		
 		Collection<NotificationSender> delegatableSenders = new HashSet<NotificationSender>();
 		
-		for(NotificationSender notificationSender : notificationSenders.values()) {
+		for(NotificationSender notificationSender : mappedNotificationSenders.values()) {
 			LOGGER.debug("Check whether notification sender '{}' ({}) can send given notification object", 
 					notificationSender.getName(),
 					notificationSender.getClass().getName());
@@ -44,11 +52,11 @@ public class ActiveMQBrokerBackedNotificationManager implements NotificationMana
 		}
 		
 		if(delegatableSenders.size() == 0) {
-			LOGGER.error("No notification sender found for sending given notification object");
+			LOGGER.error("No notification sender found for sending given notification object {}", notification.toString());
 		}
 		
 		for(NotificationSender notificationSender : delegatableSenders) {
-			LOGGER.debug("Send notification");
+			LOGGER.debug("Send notification {}", notification.toString());
 			notificationSender.sendNotification(notification);
 		}
 	}
@@ -59,10 +67,6 @@ public class ActiveMQBrokerBackedNotificationManager implements NotificationMana
 		for(Notification notification : notifications) {
 			sendNotification(notification);
 		}
-	}
-
-	public void setNotificationSenders(Map<String, NotificationSender> notificationSenders) {
-		this.notificationSenders = notificationSenders;
 	}
 
 	@Override

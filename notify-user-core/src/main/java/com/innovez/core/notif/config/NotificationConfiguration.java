@@ -1,19 +1,14 @@
 package com.innovez.core.notif.config;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
+import org.apache.activemq.broker.BrokerService;
+import org.apache.activemq.spring.ActiveMQConnectionFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.jms.connection.CachingConnectionFactory;
 
-import com.innovez.core.notif.ActiveMQBrokerBackedNotificationManager;
-import com.innovez.core.notif.NotificationSender;
+import com.innovez.core.notif.DefaultNotificationManager;
+import com.innovez.core.notif.NotificationBeanFactoryPostProcessor;
 import com.innovez.core.notif.aspects.PublishNotificationAnnotatedAdvisor;
-import com.innovez.core.notif.email.EmailNotificationSender;
 
 /**
  * Basic configuration for notification support.
@@ -21,21 +16,37 @@ import com.innovez.core.notif.email.EmailNotificationSender;
  * @author zakyalvan
  */
 @Configuration
-public class NotificationConfiguration implements ApplicationContextAware {
-	private ApplicationContext applicationContext;
+public class NotificationConfiguration {
+	@Bean(initMethod="start", destroyMethod="stop")
+	public BrokerService brokerService() throws Exception {
+		BrokerService brokerService = new BrokerService();
+		brokerService.setBrokerName("NotificationBroker");
+		brokerService.setPersistent(true);
+		brokerService.setUseShutdownHook(true);
+		brokerService.addConnector("tcp://localhost:61616");
+		return brokerService;
+	}
 	
 	@Bean
-	public ActiveMQBrokerBackedNotificationManager notificationManager() {
-		ActiveMQBrokerBackedNotificationManager notificationService = new ActiveMQBrokerBackedNotificationManager();
-		Map<String, NotificationSender> notificationSenders = new HashMap<String, NotificationSender>();
+	public CachingConnectionFactory connectionFactory() {
+		ActiveMQConnectionFactory activeMQConnectionFactory = new ActiveMQConnectionFactory();
+		activeMQConnectionFactory.setBrokerURL("tcp://localhost:61616");
+		//activeMQConnectionFactory.setUserName("admin");
+		//activeMQConnectionFactory.setPassword("password");
 		
-		JavaMailSender mailSender = applicationContext.getBean(JavaMailSender.class);
-		EmailNotificationSender emailNotificationSender = new EmailNotificationSender(mailSender);
-		notificationSenders.put(emailNotificationSender.getName(), emailNotificationSender);
-		
-		notificationService.setNotificationSenders(notificationSenders);
-		
-		return notificationService;
+		CachingConnectionFactory connectionFactory = new CachingConnectionFactory(activeMQConnectionFactory);
+		return connectionFactory;
+	}
+	
+	@Bean
+	public static NotificationBeanFactoryPostProcessor beanFactoryPostProcessor() {
+		return new NotificationBeanFactoryPostProcessor();
+	}
+	
+	@Bean
+	public DefaultNotificationManager notificationManager() {
+		DefaultNotificationManager notificationManager = new DefaultNotificationManager();
+		return notificationManager;
 	}
 	
 	@Bean
@@ -43,9 +54,4 @@ public class NotificationConfiguration implements ApplicationContextAware {
 		PublishNotificationAnnotatedAdvisor advisor = PublishNotificationAnnotatedAdvisor.aspectOf();
 		return advisor;
 	}
-
-	@Override
-	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		this.applicationContext = applicationContext;
-	}	
 }

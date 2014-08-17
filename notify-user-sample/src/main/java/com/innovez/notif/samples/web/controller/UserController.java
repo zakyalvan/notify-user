@@ -21,9 +21,10 @@ public class UserController {
 	@Autowired
 	private UserService userService;
 	
-	@RequestMapping(value={"", "/"}, method=RequestMethod.POST)
+	@RequestMapping(value={"", "/"}, method=RequestMethod.GET)
 	public HttpEntity<User> register() {
 		LOGGER.debug("Handle user registration");
-		return new ResponseEntity<User>(HttpStatus.CREATED);
+		User user = userService.registerUser("zakyalvan", "123", "zakyalvan@gmail.com");
+		return new ResponseEntity<User>(user, HttpStatus.CREATED);
 	}
 }

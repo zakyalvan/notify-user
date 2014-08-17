@@ -9,5 +9,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupp
 @EnableWebMvc
 @ComponentScan
 public class WebMvcConfiguration extends WebMvcConfigurationSupport {
+
+	
 	
 }

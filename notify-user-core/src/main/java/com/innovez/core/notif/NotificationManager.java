@@ -10,6 +10,13 @@ import java.util.Collection;
  */
 public interface NotificationManager {
 	/**
+	 * Set notification usable senders.
+	 * 
+	 * @param notificationSenders
+	 */
+	void setNotificationSenders(Collection<NotificationSender> notificationSenders);
+	
+	/**
 	 * Send one notification.
 	 * 
 	 * @param notification

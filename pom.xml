@@ -18,6 +18,7 @@
 	
 		<spring.version>4.0.6.RELEASE</spring.version>
 		<aspectj.version>1.8.1</aspectj.version>
+		<activemq.version>5.10.0</activemq.version>
 	</properties>
 	
 	<dependencyManagement>

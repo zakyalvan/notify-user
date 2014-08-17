@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 import com.innovez.core.notif.config.EnableNotification;
+import com.innovez.core.notif.email.EmailNotificationSender;
 
 @Configuration
 @EnableNotification
@@ -27,5 +28,12 @@ public class NotifConfiguration {
 		javaMailSender.setJavaMailProperties(javaMailProperties);
 		
 		return javaMailSender;
+	}
+	
+	@Bean
+	public EmailNotificationSender emailNotificationSender() {
+		EmailNotificationSender emailNotificationSender = new EmailNotificationSender("emailNotifSender", javaMailSender());
+		
+		return emailNotificationSender;
 	}
 }
