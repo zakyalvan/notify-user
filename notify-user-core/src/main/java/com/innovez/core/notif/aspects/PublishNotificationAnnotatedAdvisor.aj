@@ -2,7 +2,6 @@ package com.innovez.core.notif.aspects;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -157,7 +156,7 @@ public aspect PublishNotificationAnnotatedAdvisor implements ApplicationContextA
 	private Collection<Notification> processDefinitionDeclarations(Collection<Definition> definitionAnnotations, EvaluationContext evaluationContext, Map<String, Object> globalParameters) {
 		LOGGER.debug("Process all declared definitions, create notification object for each of them");
 		for(Definition definition : definitionAnnotations) {
-			String selectorExpressionString = definition.selector();
+			String selectorExpressionString = definition.guard();
 			if(selectorExpressionString.trim().isEmpty()) {
 				selectorExpressionString = "false";
 			}
@@ -169,6 +168,7 @@ public aspect PublishNotificationAnnotatedAdvisor implements ApplicationContextA
 			}
 			
 			LOGGER.debug("Definition selector string '{}' evaluated to true, process definition further", selectorExpressionString);
+			
 			
 		}
 		return null;
@@ -186,14 +186,14 @@ public aspect PublishNotificationAnnotatedAdvisor implements ApplicationContextA
 		LOGGER.debug("Process all declared factories, create notification object by dispatching all of them");
 		
 		for(Factory factory : factoryAnnotations) {
-			String selectorExpressionString = factory.selector();
-			if(selectorExpressionString.trim().isEmpty()) {
-				selectorExpressionString = "false";
+			String guardExpressionString = factory.guard();
+			if(guardExpressionString.trim().isEmpty()) {
+				guardExpressionString = "false";
 			}
 			
-			Expression selectorExpression = expressionParser.parseExpression(selectorExpressionString);
+			Expression selectorExpression = expressionParser.parseExpression(guardExpressionString);
 			if(!selectorExpression.getValue(evaluationContext, Boolean.class)) {
-				LOGGER.debug("Factory selector string '{}' evaluated to false, processing aborted", selectorExpressionString);
+				LOGGER.debug("Factory selector string '{}' evaluated to false, processing aborted", guardExpressionString);
 				continue;
 			}
 

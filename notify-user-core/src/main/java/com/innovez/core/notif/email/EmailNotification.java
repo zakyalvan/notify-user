@@ -13,11 +13,11 @@ import com.innovez.core.notif.Notification;
  */
 @SuppressWarnings("serial")
 public final class EmailNotification implements Notification {
-	private final Recipient recipient;
-	private final Subject subject;
-	private final Content content;
+	private final RecipientInfo recipient;
+	private final SubjectInfo subject;
+	private final ContentInfo content;
 	
-	public EmailNotification(Recipient recipient, Subject subject, Content content) {
+	public EmailNotification(RecipientInfo recipient, SubjectInfo subject, ContentInfo content) {
 		Assert.notNull(recipient, "Recipient parameter should not be null");
 		Assert.notNull(subject, "Subject parameter should not be null");
 		Assert.notNull(content, "Content parameter should not be null");
@@ -28,20 +28,20 @@ public final class EmailNotification implements Notification {
 	}
 
 	@Override
-	public Recipient getRecipient() {
+	public RecipientInfo getRecipient() {
 		return recipient;
 	}
 	@Override
-	public Subject getSubject() {
+	public SubjectInfo getSubject() {
 		return subject;
 	}
 	@Override
-	public Content getContent() {
+	public ContentInfo getContent() {
 		return content;
 	}
 
 	@Override
-	public Collection<Attachment> getAttachment() {
+	public Collection<AttachmentInfo> getAttachment() {
 		return null;
 	}
 }

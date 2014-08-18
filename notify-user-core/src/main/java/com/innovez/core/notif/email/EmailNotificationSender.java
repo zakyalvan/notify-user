@@ -90,10 +90,10 @@ public class EmailNotificationSender implements NotificationSender {
 				}
 				
 				EmailSubject subject = (EmailSubject) notification.getSubject();
-				messageHelper.setSubject(subject.getText());
+				messageHelper.setSubject(subject.getTemplateHolder().getContent(subject.getParameters()));
 				
 				EmailContent content = (EmailContent) notification.getContent();
-				messageHelper.setText("");
+				messageHelper.setText(content.getTemplateHolder().getContent(content.getParameters()));
 				
 				messageHelper.setSentDate(new Date());
 			}

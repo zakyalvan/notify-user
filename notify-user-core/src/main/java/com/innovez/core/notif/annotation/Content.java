@@ -17,7 +17,7 @@ import java.lang.annotation.Target;
 @Documented
 public @interface Content {
 	/**
-	 * Template name to be used for rendering content.
+	 * Template name or content to be used for rendering content.
 	 * 
 	 * @return
 	 */

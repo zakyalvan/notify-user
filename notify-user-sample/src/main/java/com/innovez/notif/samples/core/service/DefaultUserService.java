@@ -29,7 +29,7 @@ public class DefaultUserService implements UserService {
 	@PublishNotification(name="register-user-notif",
 		definitions={
 			@Definition(
-				selector="true", 
+				guard="true", 
 				recipient=@Recipient, 
 				subject=@Subject(), 
 				content=@Content(template="as")
@@ -37,7 +37,7 @@ public class DefaultUserService implements UserService {
 		},
 		factories={
 			@Factory(
-				selector="#emailAddress.equalsIgnoreCase('zakyalvan@gmail.com')",
+				guard="#emailAddress.equalsIgnoreCase('zakyalvan@gmail.com')",
 				type=UserRegistrationEmailNotificationFactory.class,
 				parameters={
 					@Parameter(name="name", expression="#username")
@@ -63,8 +63,8 @@ public class DefaultUserService implements UserService {
 		@Override
 		public Notification createNotification(Map<String, Object> parameters) throws NotificationException {
 			EmailRecipient recipient = new EmailRecipient("Muhammad Zaky Alvan", "zakyalvan@gmail.com");
-			EmailSubject subject = new EmailSubject("Wellcome {-name-}", parameters);
-			EmailContent content = new EmailContent();
+			EmailSubject subject = new EmailSubject("Welcome {#name}", parameters);
+			EmailContent content = new EmailContent("User registration email notification content for {#name}", parameters);
 			
 			EmailNotification notification = new EmailNotification(recipient, subject, content);
 			return notification;

@@ -10,5 +10,17 @@ import java.lang.annotation.Target;
 @Target(ElementType.ANNOTATION_TYPE)
 @Documented
 public @interface Subject {
+	/**
+	 * Template name or content for notification subject.
+	 * 
+	 * @return
+	 */
+	String template();
 	
+	/**
+	 * Parameters to for replacing value in template.
+	 * 
+	 * @return
+	 */
+	Parameter[] parameters() default {};
 }

@@ -17,7 +17,7 @@ import com.innovez.core.notif.support.NotificationFactory;
 @Documented
 public @interface Factory {
 	/**
-	 * Type of factory.
+	 * Type of factory to be used on creating notification object.
 	 * 
 	 * @return
 	 */
@@ -29,7 +29,7 @@ public @interface Factory {
 	 * 
 	 * @return
 	 */
-	String selector() default "true";
+	String guard() default "true";
 
 	/**
 	 * Bean name if the factory should be resolved from application context.

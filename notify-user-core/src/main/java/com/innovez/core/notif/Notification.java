@@ -2,6 +2,9 @@ package com.innovez.core.notif;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Map;
+
+import com.innovez.core.notif.support.ParameterizedTextHolder;
 
 /**
  * Contract for notification object.
@@ -14,35 +17,35 @@ public interface Notification extends Serializable {
 	 * 
 	 * @return
 	 */
-	Recipient getRecipient();
+	RecipientInfo getRecipient();
 	
 	/**
 	 * Retrieve subject of notification.
 	 * 
 	 * @return
 	 */
-	Subject getSubject();
+	SubjectInfo getSubject();
 	
 	/**
 	 * Retrieve content of notification.
 	 * 
 	 * @return
 	 */
-	Content getContent();
+	ContentInfo getContent();
 	
 	/**
 	 * Retrieve attachments of notification.
 	 * 
 	 * @return
 	 */
-	Collection<Attachment> getAttachment();
+	Collection<AttachmentInfo> getAttachment();
 	
 	/**
 	 * Contract for notification's recipient.
 	 * 
 	 * @author zakyalvan
 	 */
-	public static interface Recipient extends Serializable {
+	public static interface RecipientInfo extends Serializable {
 		/**
 		 * Name of recipient.
 		 * 
@@ -57,13 +60,9 @@ public interface Notification extends Serializable {
 	 * 
 	 * @author zakyalvan
 	 */
-	public static interface Subject extends Serializable {
-		/**
-		 * Retrieve text of notification's subject.
-		 * 
-		 * @return
-		 */
-		String getText();
+	public static interface SubjectInfo extends Serializable {
+		Map<String, Object> getParameters();
+		ParameterizedTextHolder getTemplateHolder();
 	}
 	
 	/**
@@ -72,16 +71,18 @@ public interface Notification extends Serializable {
 	 * 
 	 * @author zakyalvan
 	 */
-	public static interface Content extends Serializable {
-		/**
-		 * Retrieve body of notification's content.
-		 * 
-		 * @return
-		 */
-		<T> T getBody(Class<?> bodyType);
+	public static interface ContentInfo extends Serializable {
+		Map<String, Object> getParameters();
+		ParameterizedTextHolder getTemplateHolder();
 	}
 	
-	public static interface Attachment extends Serializable {
+	/**
+	 * Object contract represent attachment for notification.
+	 * 
+	 * @author zakyalvan
+	 *
+	 */
+	public static interface AttachmentInfo extends Serializable {
 		
 	}
 }

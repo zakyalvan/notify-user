@@ -25,12 +25,12 @@ public @interface Definition {
 	NotificationType type() default NotificationType.EMAIL;
 
 	/**
-	 * Selector containing condition information to be evaluated so that
+	 * Guard expression containing exression condition to be evaluated so that
 	 * any particular {@link Definition} can be proceed further.
 	 * 
 	 * @return
 	 */
-	String selector() default "true";
+	String guard() default "true";
 
 	/**
 	 * Recipients of notification.

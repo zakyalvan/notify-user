@@ -2,7 +2,7 @@ package com.innovez.core.notif.email;
 
 import org.springframework.util.Assert;
 
-import com.innovez.core.notif.Notification.Recipient;
+import com.innovez.core.notif.Notification.RecipientInfo;
 
 /**
  * Email recipient type.
@@ -10,7 +10,7 @@ import com.innovez.core.notif.Notification.Recipient;
  * @author zakyalvan
  */
 @SuppressWarnings("serial")
-public final class EmailRecipient implements Recipient {
+public final class EmailRecipient implements RecipientInfo {
 	private final String name;
 	private final Type type;
 	private final String address;
