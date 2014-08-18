@@ -15,11 +15,11 @@ import org.springframework.util.Assert;
 
 /**
  * Wrapper for any {@link NotificationSender} to get asynchronous behavior in sending notification.
- * This behavior gained bay using jms message broker, or exactly ActiveMQ message broker.
+ * This behavior gained bay using JMS message broker, or exactly ActiveMQ message broker.
  * 
  * @author zakyalvan
  */
-public class JmsBrokerBackedNotificationSenderWrapper implements NotificationSender {
+public final class JmsBrokerBackedNotificationSenderWrapper implements NotificationSender {
 	private static final Logger LOGGER = LoggerFactory.getLogger(JmsBrokerBackedNotificationSenderWrapper.class);
 
 	private final JmsTemplate jmsTemplate;

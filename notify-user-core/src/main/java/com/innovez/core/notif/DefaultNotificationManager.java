@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
 import org.springframework.util.Assert;
 
+import com.innovez.core.notif.event.GenericNotificationEvent;
 import com.innovez.core.notif.event.NotificationEvent;
 
 /**
@@ -72,6 +73,8 @@ public class DefaultNotificationManager implements NotificationManager, Applicat
 	@Override
 	public void onApplicationEvent(NotificationEvent<?> event) {
 		LOGGER.debug("Handle application notification event.");
-		
+		if(GenericNotificationEvent.class.isAssignableFrom(event.getClass())) {
+			sendNotifications(((GenericNotificationEvent)event).getNotifications());
+		}
 	}
 }
