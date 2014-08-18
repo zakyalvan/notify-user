@@ -2,7 +2,11 @@ package com.innovez.notif.samples.core.service;
 
 import java.util.Map;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.innovez.core.notif.Notification;
@@ -25,13 +29,16 @@ import com.innovez.notif.samples.core.entity.User;
 @Service
 @Transactional(readOnly=true)
 public class DefaultUserService implements UserService {
+	@PersistenceContext
+	private EntityManager entityManager;
+	
 	@Override
 	@PublishNotification(name="register-user-notif",
 		definitions={
 			@Definition(
 				guard="true", 
 				recipient=@Recipient, 
-				subject=@Subject(), 
+				subject=@Subject(template="as"), 
 				content=@Content(template="as")
 			)
 		},
@@ -45,8 +52,12 @@ public class DefaultUserService implements UserService {
 			)
 		}
 	)
+	@Transactional(propagation=Propagation.REQUIRED)
 	public User registerUser(@Named("username") String username, @Named("password") String password, @Named("emailAddress") String emailAddress) {
-		return new User();
+		User user = new User();
+		user = entityManager.merge(user);
+		entityManager.flush();
+		return user;
 	}
 	
 	@Override
