@@ -1,6 +1,6 @@
 package com.innovez.core.notif.email;
 
-import java.util.Collection;
+import java.util.Date;
 
 import org.springframework.util.Assert;
 
@@ -13,35 +13,43 @@ import com.innovez.core.notif.Notification;
  */
 @SuppressWarnings("serial")
 public final class EmailNotification implements Notification {
-	private final RecipientInfo recipient;
-	private final SubjectInfo subject;
-	private final ContentInfo content;
+	private final String recipient;
+	private final String subject;
+	private final String content;
+	private final Date timestamp;
 	
-	public EmailNotification(RecipientInfo recipient, SubjectInfo subject, ContentInfo content) {
-		Assert.notNull(recipient, "Recipient parameter should not be null");
-		Assert.notNull(subject, "Subject parameter should not be null");
-		Assert.notNull(content, "Content parameter should not be null");
+	public EmailNotification(String recipient, String subject, String content) {
+		this(recipient, subject, content, new Date());
+	}
+	public EmailNotification(String recipient, String subject, String content, Date timestamp) {
+		Assert.hasText(recipient, "Recipient parameter should not be null or empty text");
+		Assert.hasText(subject, "Subject parameter should not be null or empty text");
+		Assert.hasText(content, "Content parameter should not be null or empty text");
+		Assert.notNull(timestamp, "Timestamp parameter should not be null");
 		
 		this.recipient = recipient;
 		this.subject = subject;
 		this.content = content;
+		this.timestamp = timestamp;
 	}
 
 	@Override
-	public RecipientInfo getRecipient() {
+	public String getRecipient() {
 		return recipient;
 	}
+
 	@Override
-	public SubjectInfo getSubject() {
+	public String getSubject() {
 		return subject;
 	}
+
 	@Override
-	public ContentInfo getContent() {
+	public String getContent() {
 		return content;
 	}
 
 	@Override
-	public Collection<AttachmentInfo> getAttachment() {
-		return null;
+	public Date getTimestamp() {
+		return timestamp;
 	}
 }

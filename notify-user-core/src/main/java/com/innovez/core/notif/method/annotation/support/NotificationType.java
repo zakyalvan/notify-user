@@ -1,4 +1,4 @@
-package com.innovez.core.notif.support;
+package com.innovez.core.notif.method.annotation.support;
 
 /**
  * Notification type.

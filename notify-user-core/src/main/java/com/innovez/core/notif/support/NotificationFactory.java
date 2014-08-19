@@ -14,17 +14,17 @@ public interface NotificationFactory {
 	/**
 	 * Ask whether given {@link NotificationFactory} can create notification for given parameter.
 	 * 
-	 * @param parameters
+	 * @param models
 	 * @return
 	 */
-	boolean canCreateNotification(Map<String, Object> parameters);
+	boolean canCreateNotification(Map<String, Object> models);
 	
 	/**
 	 * Create notification.
 	 * 
-	 * @param parameters
+	 * @param models
 	 * @return
 	 * @throws NotificationException
 	 */
-	Notification createNotification(Map<String, Object> parameters) throws NotificationException;
+	Notification createNotification(Map<String, Object> models) throws NotificationException;
 }

@@ -1,4 +1,4 @@
-package com.innovez.core.notif.method.annotation;
+package com.innovez.core.notif.method.annotation.support;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -7,6 +7,7 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.innovez.core.notif.Notification;
+import com.innovez.core.notif.method.annotation.Definition;
 
 /**
  * 

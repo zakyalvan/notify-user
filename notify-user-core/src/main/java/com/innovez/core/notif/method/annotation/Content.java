@@ -8,7 +8,8 @@ import java.lang.annotation.Target;
 
 /**
  * Annotation type for encapsulating content information of any notification.
- * Used on {@link Definition}, annotation type which hold all notification information.
+ * Used on {@link Definition}, annotation type which hold all notification
+ * information.
  * 
  * @author zakyalvan
  */
@@ -17,16 +18,20 @@ import java.lang.annotation.Target;
 @Documented
 public @interface Content {
 	/**
-	 * Template name or content to be used for rendering content.
+	 * Template name or content for notification content. Template can contain
+	 * one or more placeholder. Each placeholder declared in form of
+	 * ${placeholderExpression}, and will be evaluated using SpEL evaluator with
+	 * all subject's model variables will be set as evaluation context variables.
 	 * 
 	 * @return
 	 */
 	String template();
-	
+
 	/**
-	 * Parameter to used as replacer for placeholder on template.
+	 * Model map used for replacing all placeholder value declared in content
+	 * template.
 	 * 
 	 * @return
 	 */
-	Parameter[] parameters() default {};
+	Model[] models() default {};
 }

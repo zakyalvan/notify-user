@@ -4,7 +4,6 @@ import java.util.Collection;
 
 import com.innovez.core.notif.send.NotificationSender;
 
-
 /**
  * Contract for notification service.
  * 

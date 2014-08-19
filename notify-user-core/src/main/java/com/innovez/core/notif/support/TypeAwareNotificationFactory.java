@@ -4,6 +4,7 @@ import java.util.Map;
 
 import com.innovez.core.notif.Notification;
 import com.innovez.core.notif.NotificationException;
+import com.innovez.core.notif.method.annotation.support.NotificationType;
 
 /**
  * Notification in which do checking for notification type also in the notification creation.

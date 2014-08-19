@@ -14,7 +14,10 @@ import org.springframework.util.Assert;
 
 import com.innovez.core.notif.Notification;
 import com.innovez.core.notif.NotificationException;
-import com.innovez.core.notif.email.EmailRecipient.Type;
+import com.innovez.core.notif.method.annotation.support.SimpleRecipientInfo;
+import com.innovez.core.notif.method.annotation.support.TemplatedContentInfo;
+import com.innovez.core.notif.method.annotation.support.TemplatedSubjectInfo;
+import com.innovez.core.notif.method.annotation.support.SimpleRecipientInfo.Type;
 import com.innovez.core.notif.send.NotificationSender;
 
 /**
@@ -33,19 +36,26 @@ public class EmailNotificationSender implements NotificationSender {
 	private JavaMailSender mailSender;
 	
 	/**
+	 * Default from address used for all email sent using this notification sender.
+	 */
+	private InternetAddress defaultFromAddress;
+	
+	/**
 	 * Name of this sender, used for distinguishing each sender.
 	 */
 	private String name;
 
-	public EmailNotificationSender(JavaMailSender mailSender) {
-		this(DEFAULT_NAME, mailSender);
+	public EmailNotificationSender(JavaMailSender mailSender, InternetAddress defaultFromAddress) {
+		this(DEFAULT_NAME, mailSender, defaultFromAddress);
 	}
-	public EmailNotificationSender(String name, JavaMailSender mailSender) {
+	public EmailNotificationSender(String name, JavaMailSender mailSender, InternetAddress defaultFromAddress) {
 		Assert.notNull(name, "Name parameter should not be null");
 		Assert.notNull(mailSender, "Mail sender parameter should not be null");
+		Assert.notNull(defaultFromAddress, "Default from address parameter should not be null");
 		
 		this.name = name;
 		this.mailSender = mailSender;
+		this.defaultFromAddress = defaultFromAddress;
 	}
 	
 	@Override
@@ -74,28 +84,22 @@ public class EmailNotificationSender implements NotificationSender {
 			public void prepare(MimeMessage mimeMessage) throws Exception {		
 				MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, true);
 				
-				InternetAddress fromAddress = new InternetAddress("josmarinet@gmail.com", "JOS Notification");
-				messageHelper.setFrom(fromAddress);
+				messageHelper.setFrom(defaultFromAddress);
 				
-				EmailRecipient recipient = (EmailRecipient) notification.getRecipient();
-				InternetAddress recipientAddress = new InternetAddress(recipient.getAddress(),recipient.getName());
-				if(recipient.getType() == Type.TO) {
-					messageHelper.setTo(recipientAddress);
-				}
-				else if(recipient.getType() == Type.CC) {
-					messageHelper.setCc(recipientAddress);
-				}
-				else if(recipient.getType() == Type.BCC){
-					messageHelper.setBcc(recipientAddress);
-				}
+//				InternetAddress recipientAddress = new InternetAddress(recipient.getAddress(),recipient.getName());
+//				if(recipient.getType() == Type.TO) {
+//					messageHelper.setTo(recipientAddress);
+//				}
+//				else if(recipient.getType() == Type.CC) {
+//					messageHelper.setCc(recipientAddress);
+//				}
+//				else if(recipient.getType() == Type.BCC){
+//					messageHelper.setBcc(recipientAddress);
+//				}
 				
-				EmailSubject subject = (EmailSubject) notification.getSubject();
-				messageHelper.setSubject(subject.getTemplateHolder().getContent(subject.getParameters()));
-				
-				EmailContent content = (EmailContent) notification.getContent();
-				messageHelper.setText(content.getTemplateHolder().getContent(content.getParameters()));
-				
-				messageHelper.setSentDate(new Date());
+				messageHelper.setSubject(notification.getSubject());
+				messageHelper.setText(notification.getContent());
+				messageHelper.setSentDate(notification.getTimestamp());
 			}
 		};
 		

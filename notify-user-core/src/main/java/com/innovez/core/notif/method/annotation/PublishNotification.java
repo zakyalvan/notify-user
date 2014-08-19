@@ -46,5 +46,5 @@ public @interface PublishNotification {
 	 * 
 	 * @return
 	 */
-	Parameter[] parameters() default {};
+	Model[] parameters() default {};
 }

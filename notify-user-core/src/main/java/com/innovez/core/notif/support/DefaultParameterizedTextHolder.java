@@ -47,7 +47,12 @@ public class DefaultParameterizedTextHolder implements ParameterizedTextHolder {
 	}
 	
 	@Override
-	public String getContent(Map<String, Object> parameters) {
+	public String getRawContent() {
+		return template;
+	}
+	
+	@Override
+	public String evaluateContent(Map<String, Object> parameters) {
 		Assert.notNull(parameters, "Map parameters object (used as variable in evaluation context) should not be null"); 
 		
 		LOGGER.debug("Get content with parameters {}", parameters.toString());
@@ -64,9 +69,8 @@ public class DefaultParameterizedTextHolder implements ParameterizedTextHolder {
 		Expression placeholderExpression = null;
 		while(templateMatcher.find()) {
 			placeholderExpression = expressionParser.parseExpression(templateMatcher.group(2));
-			/**
-			 * Use try, this means we'll all non resolvable expression.
-			 */
+			
+			LOGGER.debug("Evaluate expression against evaluation context, all non resolvable expression will be ignored");
 			try {
 				Object evaluatedObject = placeholderExpression.getValue(evaluationContext);
 				templateString = templateString.replace(templateMatcher.group(1), evaluatedObject.toString());

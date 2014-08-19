@@ -6,14 +6,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.innovez.core.notif.support.NotificationType;
+import com.innovez.core.notif.method.annotation.support.NotificationType;
 
 /**
  * Notification configuration.
  * 
  * @author zakyalvan
  */
-@Target({ ElementType.FIELD })
+@Target({ ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Definition {

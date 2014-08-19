@@ -10,10 +10,18 @@ import java.util.Map;
  */
 public interface ParameterizedTextHolder extends Serializable {
 	/**
-	 * Get content of text container
+	 * Retrieve raw content of template.
 	 * 
-	 * @param parameters
 	 * @return
 	 */
-	String getContent(Map<String, Object> parameters);
+	String getRawContent();
+	
+	/**
+	 * Get evaluated version of containing template text, models used for
+	 * replacing placeholders declared on template.
+	 * 
+	 * @param models
+	 * @return
+	 */
+	String evaluateContent(Map<String, Object> models);
 }

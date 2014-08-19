@@ -12,4 +12,10 @@ public class NotificationConfigurerSupport implements VariableProviderRegistrar 
 	public void registerVariableProviders(VariableProviderRegistry registry) {
 		// Just NOP method, developer have to override this to add custom variable.
 	}
+
+	@Override
+	public String getNamespace() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

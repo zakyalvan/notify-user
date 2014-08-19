@@ -2,6 +2,8 @@ package com.innovez.notif.samples.core;
 
 import java.util.Properties;
 
+import javax.mail.internet.InternetAddress;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
@@ -31,9 +33,9 @@ public class NotifConfiguration {
 	}
 	
 	@Bean
-	public EmailNotificationSender emailNotificationSender() {
-		EmailNotificationSender emailNotificationSender = new EmailNotificationSender("emailNotifSender", javaMailSender());
-		
+	public EmailNotificationSender emailNotificationSender() throws Exception {
+		InternetAddress defaultFromAddress = new InternetAddress("josmarinet@gmail.com", "JOS Notification");
+		EmailNotificationSender emailNotificationSender = new EmailNotificationSender("emailNotifSender", javaMailSender(), defaultFromAddress);
 		return emailNotificationSender;
 	}
 }

@@ -1,6 +1,7 @@
-package com.innovez.core.notif.method.annotation;
+package com.innovez.core.notif.method.annotation.support;
 
 import com.innovez.core.notif.Notification;
+import com.innovez.core.notif.method.annotation.Definition;
 
 /**
  * Base contract for strategy object which can process each {@link Definition}

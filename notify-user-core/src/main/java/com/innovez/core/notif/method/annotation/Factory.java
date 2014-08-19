@@ -1,8 +1,10 @@
 package com.innovez.core.notif.method.annotation;
 
 import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 import com.innovez.core.notif.support.NotificationFactory;
 
@@ -14,6 +16,7 @@ import com.innovez.core.notif.support.NotificationFactory;
  * @author zakyalvan
  */
 @Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
 @Documented
 public @interface Factory {
 	/**
@@ -43,5 +46,5 @@ public @interface Factory {
 	 * 
 	 * @return
 	 */
-	Parameter[] parameters() default {};
+	Model[] parameters() default {};
 }
