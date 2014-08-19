@@ -14,8 +14,8 @@ import org.springframework.util.Assert;
 
 import com.innovez.core.notif.Notification;
 import com.innovez.core.notif.NotificationException;
-import com.innovez.core.notif.NotificationSender;
 import com.innovez.core.notif.email.EmailRecipient.Type;
+import com.innovez.core.notif.send.NotificationSender;
 
 /**
  * Implementation of {@link NotificationSender} for sending email notification type.

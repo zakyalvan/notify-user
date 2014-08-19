@@ -1,4 +1,7 @@
-package com.innovez.core.notif;
+package com.innovez.core.notif.send;
+
+import com.innovez.core.notif.Notification;
+import com.innovez.core.notif.NotificationException;
 
 /**
  * Delegatable strategy type which can send notification.

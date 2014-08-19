@@ -12,6 +12,7 @@ import org.springframework.util.Assert;
 
 import com.innovez.core.notif.event.GenericNotificationEvent;
 import com.innovez.core.notif.event.NotificationEvent;
+import com.innovez.core.notif.send.NotificationSender;
 
 /**
  * Default implementation of {@link NotificationManager}.

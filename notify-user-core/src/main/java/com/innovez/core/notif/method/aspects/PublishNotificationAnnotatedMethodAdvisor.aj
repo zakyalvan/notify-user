@@ -5,7 +5,6 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -29,9 +28,9 @@ import com.innovez.core.notif.method.annotation.Factory;
 import com.innovez.core.notif.method.annotation.Named;
 import com.innovez.core.notif.method.annotation.Parameter;
 import com.innovez.core.notif.method.annotation.PublishNotification;
-import com.innovez.core.notif.method.expression.ContextVariableRegistrar;
+import com.innovez.core.notif.method.expression.VariableProviderRegistrar;
+import com.innovez.core.notif.method.expression.VariableProviderRegistrar.VariableProviderRegistry;
 import com.innovez.core.notif.method.expression.VariableProvider;
-import com.innovez.core.notif.method.expression.ContextVariableRegistrar.ContextVariableRegistry;
 import com.innovez.core.notif.support.NotificationFactory;
 
 /**
@@ -39,20 +38,13 @@ import com.innovez.core.notif.support.NotificationFactory;
  * 
  * @author zakyalvan
  */
-public aspect PublishNotificationAnnotatedAdvisor implements ApplicationContextAware {
-	private static final Logger LOGGER = LoggerFactory.getLogger(PublishNotificationAnnotatedAdvisor.class);
-	
-	private static final Collection<String> RESERVED_EVAL_CONTEXT_VARIABLE_NAMES = new HashSet<String>(Arrays.asList("args", "ret"));
+public aspect PublishNotificationAnnotatedMethodAdvisor implements ApplicationContextAware {
+	private static final Logger LOGGER = LoggerFactory.getLogger(PublishNotificationAnnotatedMethodAdvisor.class);
 	
 	/**
 	 * SpEL expression parser, used for parsing parameters value, based on declaration.
 	 */
 	private ExpressionParser expressionParser = new SpelExpressionParser();
-	
-	/**
-	 * Custom variables in for evaluation context, used on evaluates notification parameters.
-	 */
-	private Map<String, Object> customEvaluationContextVariables = new HashMap<String, Object>();
 	
 	/**
 	 * Application context, we'll resolve factory object via this context
@@ -63,7 +55,7 @@ public aspect PublishNotificationAnnotatedAdvisor implements ApplicationContextA
 	private NotificationManager notificationService;
 	
 	@Autowired(required=false)
-	private Set<ContextVariableRegistrar> contextVariableRegistrars;
+	private Set<VariableProviderRegistrar> contextVariableRegistrars;
 	
 	/**
 	 * Point-cut to select all {@link PublishNotification} annotated methods.
@@ -111,19 +103,14 @@ public aspect PublishNotificationAnnotatedAdvisor implements ApplicationContextA
 		LOGGER.debug("Add returned object as SpEL evaluation context variable with name 'ret'");
 		evalContextVars.put("ret", returnedObject);
 		
-		LOGGER.debug("Last (so we can add reserved var name), add custom evaluation context variables, registered by developer");
-		ContextVariableRegistry registry = new ContextVariableRegistry(evalContextVars.keySet());
-		for(ContextVariableRegistrar contextVariableRegistrar : contextVariableRegistrars) {
-			contextVariableRegistrar.registerEvalutionContextVariables(registry);
+		LOGGER.debug("Last (so we can add reserved var name), collect custom evaluation context variables, registered by developer");
+		VariableProviderRegistry variableProviderRegistry = new VariableProviderRegistry(evalContextVars.keySet());
+		for(VariableProviderRegistrar contextVariableRegistrar : contextVariableRegistrars) {
+			contextVariableRegistrar.registerVariableProviders(variableProviderRegistry);
 		}
-		Map<String, Object> customVariables = registry.getAll();
-		for(String customVariableName : customVariables.keySet()) {
-			if(customVariables.get(customVariableName) instanceof VariableProvider) {
-				evalContextVars.put(customVariableName, ((VariableProvider) customVariables.get(customVariableName)).getVariable());
-			}
-			else {
-				evalContextVars.put(customVariableName, customVariables.get(customVariableName));
-			}
+		
+		for(VariableProvider variableProvider : variableProviderRegistry.getAll()) {
+			evalContextVars.put(variableProvider.getName(), variableProvider.getVariable());
 		}
 		
 		LOGGER.debug("Set all variables into evaluation context");

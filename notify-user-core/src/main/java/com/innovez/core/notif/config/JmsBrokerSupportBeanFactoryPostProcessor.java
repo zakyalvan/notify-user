@@ -16,9 +16,9 @@ import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.springframework.jms.listener.adapter.MessageListenerAdapter;
 
 import com.innovez.core.notif.DefaultNotificationManager;
-import com.innovez.core.notif.JmsBrokerBackedNotificationSenderWrapper;
 import com.innovez.core.notif.NotificationManager;
-import com.innovez.core.notif.NotificationSender;
+import com.innovez.core.notif.send.JmsBrokerBackedNotificationSenderWrapper;
+import com.innovez.core.notif.send.NotificationSender;
 
 /**
  * Post process notification beans, create and register required jms related supporting beans to bean container.

@@ -9,7 +9,7 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 
 import com.innovez.core.notif.DefaultNotificationManager;
 import com.innovez.core.notif.NotificationManager;
-import com.innovez.core.notif.NotificationSender;
+import com.innovez.core.notif.send.NotificationSender;
 
 public class NoBrokerSupportBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
 	@Override

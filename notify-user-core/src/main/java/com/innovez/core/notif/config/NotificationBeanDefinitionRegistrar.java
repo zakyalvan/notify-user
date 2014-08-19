@@ -13,7 +13,7 @@ import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.jms.connection.CachingConnectionFactory;
 
 import com.innovez.core.notif.DefaultNotificationManager;
-import com.innovez.core.notif.method.aspects.PublishNotificationAnnotatedAdvisor;
+import com.innovez.core.notif.method.aspects.PublishNotificationAnnotatedMethodAdvisor;
 
 /**
  * {@link ImportBeanDefinitionRegistrar} for definition of required beans in
@@ -53,7 +53,7 @@ public class NotificationBeanDefinitionRegistrar implements ImportBeanDefinition
 					.getBeanDefinition();
 		registry.registerBeanDefinition("jmsBrokerSupportBeanFactoryPostProcessor", jmsBrokerSupportBeanFactoryPostProcessorDefinition);
 		
-		BeanDefinition publishNotificationAdvisorDefinition = BeanDefinitionBuilder.rootBeanDefinition(PublishNotificationAnnotatedAdvisor.class, "aspectOf")
+		BeanDefinition publishNotificationAdvisorDefinition = BeanDefinitionBuilder.rootBeanDefinition(PublishNotificationAnnotatedMethodAdvisor.class, "aspectOf")
 				.getBeanDefinition();
 		registry.registerBeanDefinition("publishNotificationAdvisor", publishNotificationAdvisorDefinition);
 		

@@ -1,4 +1,4 @@
-package com.innovez.core.notif;
+package com.innovez.core.notif.send;
 
 import java.util.UUID;
 
@@ -12,6 +12,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
 import org.springframework.util.Assert;
+
+import com.innovez.core.notif.Notification;
+import com.innovez.core.notif.NotificationException;
 
 /**
  * Wrapper or decorator for any {@link NotificationSender} to get asynchronous

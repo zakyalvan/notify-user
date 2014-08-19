@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.connection.CachingConnectionFactory;
 
 import com.innovez.core.notif.DefaultNotificationManager;
-import com.innovez.core.notif.method.aspects.PublishNotificationAnnotatedAdvisor;
+import com.innovez.core.notif.method.aspects.PublishNotificationAnnotatedMethodAdvisor;
 
 /**
  * Basic configuration for notification support.
@@ -49,8 +49,8 @@ public class NotificationConfiguration {
 	}
 	
 	@Bean
-	public PublishNotificationAnnotatedAdvisor publishNotificationAnnotatedAdvisor() {
-		PublishNotificationAnnotatedAdvisor advisor = PublishNotificationAnnotatedAdvisor.aspectOf();
+	public PublishNotificationAnnotatedMethodAdvisor publishNotificationAnnotatedAdvisor() {
+		PublishNotificationAnnotatedMethodAdvisor advisor = PublishNotificationAnnotatedMethodAdvisor.aspectOf();
 		return advisor;
 	}
 }

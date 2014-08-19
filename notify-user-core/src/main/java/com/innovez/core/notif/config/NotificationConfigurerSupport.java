@@ -1,15 +1,15 @@
 package com.innovez.core.notif.config;
 
-import com.innovez.core.notif.method.expression.ContextVariableRegistrar;
+import com.innovez.core.notif.method.expression.VariableProviderRegistrar;
 
 /**
  * Extends this type to configure notification support.
  * 
  * @author zakyalvan
  */
-public class NotificationConfigurerSupport implements ContextVariableRegistrar {
+public class NotificationConfigurerSupport implements VariableProviderRegistrar {
 	@Override
-	public void registerEvalutionContextVariables(ContextVariableRegistry registry) {
+	public void registerVariableProviders(VariableProviderRegistry registry) {
 		// Just NOP method, developer have to override this to add custom variable.
 	}
 }
