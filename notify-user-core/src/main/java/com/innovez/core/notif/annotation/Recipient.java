@@ -15,5 +15,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.ANNOTATION_TYPE)
 @Documented
 public @interface Recipient {
-	
+	String expression() default "";
 }

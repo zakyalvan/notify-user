@@ -4,9 +4,12 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import javassist.compiler.ast.Variable;
+
 import org.springframework.util.Assert;
 
 import com.innovez.core.notif.aspects.PublishNotificationAnnotatedAdvisor;
+import com.innovez.core.notif.expression.VariableProvider;
 
 /**
  * Contract for types used in registering evaluation context variable, so that can be used in
@@ -18,7 +21,7 @@ public interface EvaluationContextVariableRegistrar {
 	/**
 	 * This will be called on {@link PublishNotificationAnnotatedAdvisor} to get additional evaluation context variable.
 	 * 
-	 * @param registration
+	 * @param registry
 	 */
 	void registerEvalutionContextVariables(EvaluationContextVariableRegistry registry);
 	
@@ -28,6 +31,12 @@ public interface EvaluationContextVariableRegistrar {
 		
 		public EvaluationContextVariableRegistry(Collection<String> reservedNames) {
 			this.reservedNames = reservedNames;
+		}
+		
+		public void add(VariableProvider provider) {
+			Assert.notNull(provider, "Variable provider parameter should not be null");
+			Assert.isTrue(!contains(provider.getName()), "Given name already exists in this registry, overriding not allowed, choose another name");
+			variableRegistry.put(provider.getName(), provider);
 		}
 		
 		/**

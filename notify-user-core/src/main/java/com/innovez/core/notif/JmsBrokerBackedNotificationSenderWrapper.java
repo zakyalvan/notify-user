@@ -14,8 +14,9 @@ import org.springframework.jms.core.MessageCreator;
 import org.springframework.util.Assert;
 
 /**
- * Wrapper for any {@link NotificationSender} to get asynchronous behavior in sending notification.
- * This behavior gained bay using JMS message broker, or exactly ActiveMQ message broker.
+ * Wrapper or decorator for any {@link NotificationSender} to get asynchronous
+ * behavior in sending notification. This behavior gained bay using JMS message
+ * broker, or exactly ActiveMQ message broker.
  * 
  * @author zakyalvan
  */

@@ -6,7 +6,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
@@ -21,13 +20,25 @@ public class User implements Serializable {
 	private String username;
 	
 	@NotBlank
-	@Column(name="password")
-	private String password;
-	
-	@NotBlank
 	@Email
 	@Column(name="email_address")
 	private String emailAddress;
+	
+	@NotBlank
+	@Column(name="password")
+	private String password;
+	
+	@Column(name="account_expired")
+	private boolean accountExpired;
+	
+	@Column(name="account_locked")
+	private boolean accountLocked;
+	
+	@Column(name="creadentials_expired")
+	private boolean creadentialsExpired;
+	
+	@Column(name="enabled")
+	private boolean enabled;
 	
 	public User() {}
 	public User(String username, String password, String emailAddress) {
@@ -43,17 +54,45 @@ public class User implements Serializable {
 		this.username = username;
 	}
 
+	public String getEmailAddress() {
+		return emailAddress;
+	}
+	public void setEmailAddress(String emailAddress) {
+		this.emailAddress = emailAddress;
+	}
+	
 	public String getPassword() {
 		return password;
 	}
 	public void setPassword(String password) {
 		this.password = password;
 	}
-
-	public String getEmailAddress() {
-		return emailAddress;
+	
+	public boolean isAccountExpired() {
+		return accountExpired;
 	}
-	public void setEmailAddress(String emailAddress) {
-		this.emailAddress = emailAddress;
+	public void setAccountExpired(boolean accountExpired) {
+		this.accountExpired = accountExpired;
+	}
+
+	public boolean isAccountLocked() {
+		return accountLocked;
+	}
+	public void setAccountLocked(boolean accountLocked) {
+		this.accountLocked = accountLocked;
+	}
+
+	public boolean isCredentialsExpired() {
+		return creadentialsExpired;
+	}
+	public void setCreadentialsExpired(boolean creadentialsExpired) {
+		this.creadentialsExpired = creadentialsExpired;
+	}
+
+	public boolean isEnabled() {
+		return enabled;
+	}
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
 	}
 }
