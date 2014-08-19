@@ -1,4 +1,4 @@
-package com.innovez.core.notif.expression;
+package com.innovez.core.notif.method.expression;
 
 /**
  * Contract for object providing variable used in annotation expressions. This

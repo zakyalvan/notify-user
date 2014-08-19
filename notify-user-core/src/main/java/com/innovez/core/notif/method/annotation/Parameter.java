@@ -1,4 +1,4 @@
-package com.innovez.core.notif.annotation;
+package com.innovez.core.notif.method.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -6,21 +6,26 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Parameter of notification.
+ * 
+ * @author zakyalvan
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.ANNOTATION_TYPE)
 @Documented
-public @interface Subject {
+public @interface Parameter {
 	/**
-	 * Template name or content for notification subject.
+	 * Name of parameter.
 	 * 
 	 * @return
 	 */
-	String template();
+	String name();
 	
 	/**
-	 * Parameters to for replacing value in template.
+	 * SpEL expression to be evaluated to get the parameter value.
 	 * 
 	 * @return
 	 */
-	Parameter[] parameters() default {};
+	String expression();
 }

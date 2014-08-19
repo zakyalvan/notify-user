@@ -1,4 +1,4 @@
-package com.innovez.core.notif.aspects;
+package com.innovez.core.notif.method.aspects;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -13,7 +13,6 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -25,13 +24,14 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import com.innovez.core.notif.Notification;
 import com.innovez.core.notif.NotificationManager;
-import com.innovez.core.notif.annotation.Definition;
-import com.innovez.core.notif.annotation.Factory;
-import com.innovez.core.notif.annotation.Named;
-import com.innovez.core.notif.annotation.Parameter;
-import com.innovez.core.notif.annotation.PublishNotification;
-import com.innovez.core.notif.config.EvaluationContextVariableRegistrar;
-import com.innovez.core.notif.config.EvaluationContextVariableRegistrar.EvaluationContextVariableRegistry;
+import com.innovez.core.notif.method.annotation.Definition;
+import com.innovez.core.notif.method.annotation.Factory;
+import com.innovez.core.notif.method.annotation.Named;
+import com.innovez.core.notif.method.annotation.Parameter;
+import com.innovez.core.notif.method.annotation.PublishNotification;
+import com.innovez.core.notif.method.expression.ContextVariableRegistrar;
+import com.innovez.core.notif.method.expression.VariableProvider;
+import com.innovez.core.notif.method.expression.ContextVariableRegistrar.ContextVariableRegistry;
 import com.innovez.core.notif.support.NotificationFactory;
 
 /**
@@ -39,7 +39,7 @@ import com.innovez.core.notif.support.NotificationFactory;
  * 
  * @author zakyalvan
  */
-public aspect PublishNotificationAnnotatedAdvisor implements ApplicationContextAware, InitializingBean {
+public aspect PublishNotificationAnnotatedAdvisor implements ApplicationContextAware {
 	private static final Logger LOGGER = LoggerFactory.getLogger(PublishNotificationAnnotatedAdvisor.class);
 	
 	private static final Collection<String> RESERVED_EVAL_CONTEXT_VARIABLE_NAMES = new HashSet<String>(Arrays.asList("args", "ret"));
@@ -63,7 +63,7 @@ public aspect PublishNotificationAnnotatedAdvisor implements ApplicationContextA
 	private NotificationManager notificationService;
 	
 	@Autowired(required=false)
-	private Set<EvaluationContextVariableRegistrar> contextVariableRegistrars;
+	private Set<ContextVariableRegistrar> contextVariableRegistrars;
 	
 	/**
 	 * Point-cut to select all {@link PublishNotification} annotated methods.
@@ -110,8 +110,24 @@ public aspect PublishNotificationAnnotatedAdvisor implements ApplicationContextA
 		
 		LOGGER.debug("Add returned object as SpEL evaluation context variable with name 'ret'");
 		evalContextVars.put("ret", returnedObject);
-		evaluationContext.setVariables(evalContextVars);
 		
+		LOGGER.debug("Last (so we can add reserved var name), add custom evaluation context variables, registered by developer");
+		ContextVariableRegistry registry = new ContextVariableRegistry(evalContextVars.keySet());
+		for(ContextVariableRegistrar contextVariableRegistrar : contextVariableRegistrars) {
+			contextVariableRegistrar.registerEvalutionContextVariables(registry);
+		}
+		Map<String, Object> customVariables = registry.getAll();
+		for(String customVariableName : customVariables.keySet()) {
+			if(customVariables.get(customVariableName) instanceof VariableProvider) {
+				evalContextVars.put(customVariableName, ((VariableProvider) customVariables.get(customVariableName)).getVariable());
+			}
+			else {
+				evalContextVars.put(customVariableName, customVariables.get(customVariableName));
+			}
+		}
+		
+		LOGGER.debug("Set all variables into evaluation context");
+		evaluationContext.setVariables(evalContextVars);
 		
 		LOGGER.debug("After execution of advised method on target object, here we start sends the notifications");
 		Map<String, Object> globalParameters = evaluateParameters(Arrays.asList(publishNotification.parameters()), evaluationContext, new HashMap<String, Object>());
@@ -242,14 +258,5 @@ public aspect PublishNotificationAnnotatedAdvisor implements ApplicationContextA
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		this.applicationContext = applicationContext;
-	}
-
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		EvaluationContextVariableRegistry registry = new EvaluationContextVariableRegistry(RESERVED_EVAL_CONTEXT_VARIABLE_NAMES);
-		for(EvaluationContextVariableRegistrar registrar : applicationContext.getBeansOfType(EvaluationContextVariableRegistrar.class).values()) {
-			registrar.registerEvalutionContextVariables(registry);
-		}
-		customEvaluationContextVariables.putAll(registry.getAll());
 	}
 }

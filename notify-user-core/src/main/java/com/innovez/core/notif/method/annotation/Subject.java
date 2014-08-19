@@ -1,4 +1,4 @@
-package com.innovez.core.notif.annotation;
+package com.innovez.core.notif.method.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -6,25 +6,19 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- * Annotation type for encapsulating content information of any notification.
- * Used on {@link Definition}, annotation type which hold all notification information.
- * 
- * @author zakyalvan
- */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.ANNOTATION_TYPE)
 @Documented
-public @interface Content {
+public @interface Subject {
 	/**
-	 * Template name or content to be used for rendering content.
+	 * Template name or content for notification subject.
 	 * 
 	 * @return
 	 */
 	String template();
 	
 	/**
-	 * Parameter to used as replacer for placeholder on template.
+	 * Parameters to for replacing value in template.
 	 * 
 	 * @return
 	 */

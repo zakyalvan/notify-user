@@ -13,7 +13,7 @@ import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.jms.connection.CachingConnectionFactory;
 
 import com.innovez.core.notif.DefaultNotificationManager;
-import com.innovez.core.notif.aspects.PublishNotificationAnnotatedAdvisor;
+import com.innovez.core.notif.method.aspects.PublishNotificationAnnotatedAdvisor;
 
 /**
  * {@link ImportBeanDefinitionRegistrar} for definition of required beans in

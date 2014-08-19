@@ -2,7 +2,7 @@ package com.innovez.core.notif.event;
 
 import java.lang.reflect.Method;
 
-import com.innovez.core.notif.annotation.PublishNotification;
+import com.innovez.core.notif.method.annotation.PublishNotification;
 
 /**
  * Event type to be published after executions of {@link PublishNotification} annotated methods.

@@ -1,4 +1,4 @@
-package com.innovez.core.notif.config;
+package com.innovez.core.notif.method.expression;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -8,8 +8,7 @@ import javassist.compiler.ast.Variable;
 
 import org.springframework.util.Assert;
 
-import com.innovez.core.notif.aspects.PublishNotificationAnnotatedAdvisor;
-import com.innovez.core.notif.expression.VariableProvider;
+import com.innovez.core.notif.method.aspects.PublishNotificationAnnotatedAdvisor;
 
 /**
  * Contract for types used in registering evaluation context variable, so that can be used in
@@ -17,19 +16,19 @@ import com.innovez.core.notif.expression.VariableProvider;
  * 
  * @author zakyalvan
  */
-public interface EvaluationContextVariableRegistrar {
+public interface ContextVariableRegistrar {
 	/**
 	 * This will be called on {@link PublishNotificationAnnotatedAdvisor} to get additional evaluation context variable.
 	 * 
 	 * @param registry
 	 */
-	void registerEvalutionContextVariables(EvaluationContextVariableRegistry registry);
+	void registerEvalutionContextVariables(ContextVariableRegistry registry);
 	
-	public static final class EvaluationContextVariableRegistry {
+	public static final class ContextVariableRegistry {
 		private Collection<String> reservedNames;
 		private Map<String, Object> variableRegistry = new HashMap<String, Object>();
 		
-		public EvaluationContextVariableRegistry(Collection<String> reservedNames) {
+		public ContextVariableRegistry(Collection<String> reservedNames) {
 			this.reservedNames = reservedNames;
 		}
 		

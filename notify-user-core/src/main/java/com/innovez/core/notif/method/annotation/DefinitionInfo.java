@@ -1,4 +1,4 @@
-package com.innovez.core.notif.annotation;
+package com.innovez.core.notif.method.annotation;
 
 import java.io.Serializable;
 import java.util.Collection;

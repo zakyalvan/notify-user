@@ -11,18 +11,18 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.innovez.core.notif.Notification;
 import com.innovez.core.notif.NotificationException;
-import com.innovez.core.notif.annotation.Content;
-import com.innovez.core.notif.annotation.Definition;
-import com.innovez.core.notif.annotation.Factory;
-import com.innovez.core.notif.annotation.Named;
-import com.innovez.core.notif.annotation.Parameter;
-import com.innovez.core.notif.annotation.PublishNotification;
-import com.innovez.core.notif.annotation.Recipient;
-import com.innovez.core.notif.annotation.Subject;
 import com.innovez.core.notif.email.EmailContent;
 import com.innovez.core.notif.email.EmailNotification;
 import com.innovez.core.notif.email.EmailRecipient;
 import com.innovez.core.notif.email.EmailSubject;
+import com.innovez.core.notif.method.annotation.Content;
+import com.innovez.core.notif.method.annotation.Definition;
+import com.innovez.core.notif.method.annotation.Factory;
+import com.innovez.core.notif.method.annotation.Named;
+import com.innovez.core.notif.method.annotation.Parameter;
+import com.innovez.core.notif.method.annotation.PublishNotification;
+import com.innovez.core.notif.method.annotation.Recipient;
+import com.innovez.core.notif.method.annotation.Subject;
 import com.innovez.core.notif.support.NotificationFactory;
 import com.innovez.notif.samples.core.entity.User;
 
