@@ -1,4 +1,4 @@
-package com.innovez.core.notif.support;
+package com.innovez.core.notif.commons;
 
 import java.io.Serializable;
 import java.util.Map;

@@ -2,6 +2,8 @@ package com.innovez.core.notif.method.annotation.support;
 
 import org.springframework.util.Assert;
 
+import com.innovez.core.notif.commons.RecipientDetails;
+
 /**
  * Email recipient type.
  * 

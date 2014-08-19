@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,26 +18,32 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.expression.EvaluationContext;
+import org.springframework.expression.EvaluationException;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import com.innovez.core.notif.Notification;
+import com.innovez.core.notif.NotificationFactory;
 import com.innovez.core.notif.NotificationManager;
+import com.innovez.core.notif.commons.RecipientDetails;
+import com.innovez.core.notif.commons.SimpleRecipientDetails;
 import com.innovez.core.notif.method.annotation.Content;
 import com.innovez.core.notif.method.annotation.Definition;
 import com.innovez.core.notif.method.annotation.Factory;
 import com.innovez.core.notif.method.annotation.Model;
 import com.innovez.core.notif.method.annotation.Named;
 import com.innovez.core.notif.method.annotation.PublishNotification;
+import com.innovez.core.notif.method.annotation.Recipient;
 import com.innovez.core.notif.method.annotation.Subject;
+import com.innovez.core.notif.method.annotation.support.DefinitionProcessingManager;
+import com.innovez.core.notif.method.annotation.support.SimpleDefinitionDetails;
 import com.innovez.core.notif.method.annotation.support.TemplatedContentInfo;
 import com.innovez.core.notif.method.annotation.support.TemplatedSubjectInfo;
 import com.innovez.core.notif.method.expression.VariableProvider;
 import com.innovez.core.notif.method.expression.VariableProviderRegistrar;
 import com.innovez.core.notif.method.expression.VariableProviderRegistrar.VariableProviderRegistry;
-import com.innovez.core.notif.support.NotificationFactory;
 
 /**
  * Aspect type which will advising all method annotated with {@link PublishNotification}.
@@ -57,10 +64,13 @@ public aspect PublishNotificationAnnotatedMethodAdvisor implements ApplicationCo
 	private ApplicationContext applicationContext;
 	
 	@Autowired
-	private NotificationManager notificationService;
+	private NotificationManager notificationManager;
 	
 	@Autowired(required=false)
-	private Set<VariableProviderRegistrar> contextVariableRegistrars;
+	private Set<VariableProviderRegistrar> contextVariableRegistrars = new HashSet<VariableProviderRegistrar>();
+	
+	@Autowired
+	private DefinitionProcessingManager definitionProcessingManager;
 	
 	/**
 	 * Point-cut to select all {@link PublishNotification} annotated methods.
@@ -110,6 +120,7 @@ public aspect PublishNotificationAnnotatedMethodAdvisor implements ApplicationCo
 		
 		LOGGER.debug("Last (so we can add reserved var name), collect custom evaluation context variables, registered by developer");
 		VariableProviderRegistry variableProviderRegistry = new VariableProviderRegistry(evalContextVars.keySet());
+		LOGGER.debug("+++++++ Checkpoint");
 		for(VariableProviderRegistrar contextVariableRegistrar : contextVariableRegistrars) {
 			contextVariableRegistrar.registerVariableProviders(variableProviderRegistry);
 		}
@@ -122,7 +133,7 @@ public aspect PublishNotificationAnnotatedMethodAdvisor implements ApplicationCo
 		evaluationContext.setVariables(evalContextVars);
 		
 		LOGGER.debug("After execution of advised method on target object, here we start sends the notifications");
-		Map<String, Object> globalModels = evaluateDeclaredModels(Arrays.asList(publishNotification.parameters()), evaluationContext, new HashMap<String, Object>());
+		Map<String, Object> globalModels = evaluateDeclaredModels(Arrays.asList(publishNotification.models()), evaluationContext, new HashMap<String, Object>());
 		processDefinitionDeclarations(Arrays.asList(publishNotification.definitions()), evaluationContext, globalModels);
 		processFactoryDeclarations(Arrays.asList(publishNotification.factories()), evaluationContext, globalModels);
 		
@@ -159,9 +170,8 @@ public aspect PublishNotificationAnnotatedMethodAdvisor implements ApplicationCo
 	 * @param definitionAnnotations
 	 * @param evaluationContext
 	 * @param globalModels
-	 * @return
 	 */
-	private Collection<Notification> processDefinitionDeclarations(Collection<Definition> definitionAnnotations, EvaluationContext evaluationContext, Map<String, Object> globalModels) {
+	private void processDefinitionDeclarations(Collection<Definition> definitionAnnotations, EvaluationContext evaluationContext, Map<String, Object> globalModels) {
 		LOGGER.debug("Process all declared definitions, create notification object for each of them");
 		for(Definition definition : definitionAnnotations) {
 			String selectorExpressionString = definition.guard();
@@ -177,29 +187,74 @@ public aspect PublishNotificationAnnotatedMethodAdvisor implements ApplicationCo
 			
 			LOGGER.debug("Definition selector string '{}' evaluated to true, process definition further", selectorExpressionString);
 			
-			LOGGER.debug("Process definition subject");
-			Subject subjectAnnotation = definition.subject();
-			String subjectTemplate = subjectAnnotation.template();
+			LOGGER.debug("Process recipients");
+			Collection<RecipientDetails> recipients = new HashSet<RecipientDetails>();
 			
-			LOGGER.debug("Check whether given subject template are declared in message source, if nothing found, just use declared template");
-			subjectTemplate = applicationContext.getMessage(subjectTemplate, new Object[] {}, subjectTemplate, LocaleContextHolder.getLocale());
+			Recipient recipientAnnotation = definition.recipient();
+			String nameExpressionString = recipientAnnotation.name();
+			String addressExpressionString = recipientAnnotation.address();
+			if(!addressExpressionString.trim().isEmpty()) {
+				Expression nameExpression = expressionParser.parseExpression(nameExpressionString);
+				Expression addressExpression = expressionParser.parseExpression(addressExpressionString);
+				// WOW, nested try, this just a trick!
+				try {
+					String evaluatedAddress = addressExpression.getValue(evaluationContext, String.class);
+					try {
+						String evaluatedName = nameExpression.getValue(evaluationContext, String.class);
+						recipients.add(new SimpleRecipientDetails(evaluatedName, evaluatedAddress));
+					}
+					catch(EvaluationException nameEvaluationException) {
+						recipients.add(new SimpleRecipientDetails(nameExpressionString, evaluatedAddress));
+					}
+				}
+				catch(EvaluationException addressEvaluationException) {
+					recipients.add(new SimpleRecipientDetails(nameExpressionString, addressExpressionString));
+				}
+			}
 			
-			Collection<Model> subjectModelAnnotations = Arrays.asList(subjectAnnotation.models());
-			Map<String, Object> subjectModels = evaluateDeclaredModels(subjectModelAnnotations, evaluationContext, globalModels);
-			TemplatedSubjectInfo subject = new TemplatedSubjectInfo(subjectTemplate, subjectModels);
-			
-			LOGGER.debug("Process definition content");
-			Content contentAnnotation = definition.content();
-			String contentTemplate = contentAnnotation.template();
-			
-			LOGGER.debug("Check whether given content template are declared in message source, if nothing found, just use declared template");
-			contentTemplate = applicationContext.getMessage(contentTemplate, new Object[] {}, contentTemplate, LocaleContextHolder.getLocale());
-			
-			Collection<Model> contentModelAnnotations = Arrays.asList(contentAnnotation.models());
-			Map<String, Object> contentModels = evaluateDeclaredModels(contentModelAnnotations, evaluationContext, globalModels);
-			TemplatedContentInfo content = new TemplatedContentInfo(contentTemplate, contentModels);
+			LOGGER.debug("Send notification for each recipient resolved");
+			for(RecipientDetails recipient : recipients) {
+				LOGGER.debug("Add recipient {} as evaluation context variable with name 'recipient', so we can reference in subject and content expression", recipient);
+				evaluationContext.setVariable("recipient", recipient);
+
+				Map<String, Object> clonedGlobalModels = new HashMap<String, Object>(globalModels);
+				clonedGlobalModels.put("recipient", recipient);
+				
+				LOGGER.debug("Process definition subject");
+				Subject subjectAnnotation = definition.subject();
+				String subjectTemplate = subjectAnnotation.template();
+				
+				LOGGER.debug("Check whether given subject template are declared in message source, if nothing found, just use declared template");
+				subjectTemplate = applicationContext.getMessage(subjectTemplate, new Object[] {}, subjectTemplate, LocaleContextHolder.getLocale());
+				
+				Collection<Model> subjectModelAnnotations = Arrays.asList(subjectAnnotation.models());
+				Map<String, Object> subjectModels = evaluateDeclaredModels(subjectModelAnnotations, evaluationContext, clonedGlobalModels);
+				TemplatedSubjectInfo subject = new TemplatedSubjectInfo(subjectTemplate, subjectModels);
+				
+				LOGGER.debug("Process definition content");
+				Content contentAnnotation = definition.content();
+				String contentTemplate = contentAnnotation.template();
+				
+				LOGGER.debug("Check whether given content template are declared in message source, if nothing found, just use declared template");
+				contentTemplate = applicationContext.getMessage(contentTemplate, new Object[] {}, contentTemplate, LocaleContextHolder.getLocale());
+				
+				Collection<Model> contentModelAnnotations = Arrays.asList(contentAnnotation.models());
+				Map<String, Object> contentModels = evaluateDeclaredModels(contentModelAnnotations, evaluationContext, clonedGlobalModels);
+				TemplatedContentInfo content = new TemplatedContentInfo(contentTemplate, contentModels);
+				
+				SimpleDefinitionDetails definitionDetails = new SimpleDefinitionDetails(definition.type(), recipients, subject, content);
+				
+				/**
+				 * WARNING
+				 * 
+				 * We should process and send here, before 'recipient' variable in evaluation context changed for next recipient.
+				 */
+				Collection<Notification> notifications = definitionProcessingManager.processDefinition(definitionDetails);
+				notificationManager.sendNotifications(notifications);
+			}
+			// Just ensuring 'recipient' evaluation context variable removed.
+			evaluationContext.setVariable("recipient", null);
 		}
-		return null;
 	}
 	
 	/**
@@ -208,9 +263,8 @@ public aspect PublishNotificationAnnotatedMethodAdvisor implements ApplicationCo
 	 * @param factoryAnnotations
 	 * @param evaluationContext
 	 * @param globalModels
-	 * @return
 	 */
-	private Collection<Notification> processFactoryDeclarations(Collection<Factory> factoryAnnotations, EvaluationContext evaluationContext, Map<String, Object> globalModels) {
+	private void processFactoryDeclarations(Collection<Factory> factoryAnnotations, EvaluationContext evaluationContext, Map<String, Object> globalModels) {
 		LOGGER.debug("Process all declared factories, create notification object by dispatching all of them");
 		
 		for(Factory factory : factoryAnnotations) {
@@ -250,21 +304,19 @@ public aspect PublishNotificationAnnotatedMethodAdvisor implements ApplicationCo
 			}
 
 			LOGGER.debug("Parse and resolve factory models. Factory models are inheriting global models");
-			Map<String, Object> factoryModels = evaluateDeclaredModels(Arrays.asList(factory.parameters()), evaluationContext, globalModels);
+			Map<String, Object> factoryModels = evaluateDeclaredModels(Arrays.asList(factory.models()), evaluationContext, globalModels);
 			
 			if (factoryObject != null && factoryObject.canCreateNotification(factoryModels)) {
 				LOGGER.debug("Create notification object, using notification factory type {} and models {}", factoryType.getName(), factoryModels.toString());
 				Notification notification = factoryObject.createNotification(factoryModels);
 				
 				LOGGER.debug("Send the notification now!");
-				notificationService.sendNotification(notification);
+				notificationManager.sendNotification(notification);
 			}
 			else {
 				LOGGER.error("No factory object created or notification can't be created based on PublishNotification definitions.");
 			}
 		}
-		
-		return null;
 	}
 	
 	@Override

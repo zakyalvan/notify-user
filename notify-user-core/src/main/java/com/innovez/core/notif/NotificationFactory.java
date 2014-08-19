@@ -1,9 +1,6 @@
-package com.innovez.core.notif.support;
+package com.innovez.core.notif;
 
 import java.util.Map;
-
-import com.innovez.core.notif.Notification;
-import com.innovez.core.notif.NotificationException;
 
 /**
  * Contract for object which can create a notification object.

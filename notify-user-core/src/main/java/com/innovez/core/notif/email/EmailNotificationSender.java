@@ -14,6 +14,7 @@ import org.springframework.util.Assert;
 
 import com.innovez.core.notif.Notification;
 import com.innovez.core.notif.NotificationException;
+import com.innovez.core.notif.commons.RecipientDetails;
 import com.innovez.core.notif.method.annotation.support.SimpleRecipientInfo;
 import com.innovez.core.notif.method.annotation.support.TemplatedContentInfo;
 import com.innovez.core.notif.method.annotation.support.TemplatedSubjectInfo;
@@ -86,16 +87,9 @@ public class EmailNotificationSender implements NotificationSender {
 				
 				messageHelper.setFrom(defaultFromAddress);
 				
-//				InternetAddress recipientAddress = new InternetAddress(recipient.getAddress(),recipient.getName());
-//				if(recipient.getType() == Type.TO) {
-//					messageHelper.setTo(recipientAddress);
-//				}
-//				else if(recipient.getType() == Type.CC) {
-//					messageHelper.setCc(recipientAddress);
-//				}
-//				else if(recipient.getType() == Type.BCC){
-//					messageHelper.setBcc(recipientAddress);
-//				}
+				RecipientDetails recipient = notification.getRecipient();
+				InternetAddress recipientAddress = new InternetAddress(recipient.getAddress(),recipient.getName());
+				messageHelper.setTo(recipientAddress);
 				
 				messageHelper.setSubject(notification.getSubject());
 				messageHelper.setText(notification.getContent());

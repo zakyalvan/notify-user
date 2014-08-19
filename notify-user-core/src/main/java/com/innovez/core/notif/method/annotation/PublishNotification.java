@@ -19,8 +19,8 @@ import java.lang.annotation.Target;
 public @interface PublishNotification {
 	/**
 	 * Publish notification execution point name. We can use this name to
-	 * disable notification further in configuration, so every time notification
-	 * execution point reached, send notification will be avoided.
+	 * disable notification further in configuration or globally, so every time
+	 * notification execution point reached, send notification will be avoided.
 	 * 
 	 * @return
 	 */
@@ -41,10 +41,10 @@ public @interface PublishNotification {
 	Factory[] factories() default {};
 
 	/**
-	 * Global parameters of notification. This global parameters would be
-	 * replaced by parameter in each of definition if same parameter name found.
+	 * Global models of notification. This global models would be replaced by
+	 * models in each of definition if same model name found.
 	 * 
 	 * @return
 	 */
-	Model[] parameters() default {};
+	Model[] models() default {};
 }

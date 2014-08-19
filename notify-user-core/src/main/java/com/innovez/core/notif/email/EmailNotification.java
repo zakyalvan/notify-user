@@ -5,6 +5,7 @@ import java.util.Date;
 import org.springframework.util.Assert;
 
 import com.innovez.core.notif.Notification;
+import com.innovez.core.notif.commons.RecipientDetails;
 
 /**
  * Simple implementation of {@link Notification} to be sent using email protocol.
@@ -13,16 +14,16 @@ import com.innovez.core.notif.Notification;
  */
 @SuppressWarnings("serial")
 public final class EmailNotification implements Notification {
-	private final String recipient;
+	private final RecipientDetails recipient;
 	private final String subject;
 	private final String content;
 	private final Date timestamp;
 	
-	public EmailNotification(String recipient, String subject, String content) {
+	public EmailNotification(RecipientDetails recipient, String subject, String content) {
 		this(recipient, subject, content, new Date());
 	}
-	public EmailNotification(String recipient, String subject, String content, Date timestamp) {
-		Assert.hasText(recipient, "Recipient parameter should not be null or empty text");
+	public EmailNotification(RecipientDetails recipient, String subject, String content, Date timestamp) {
+		Assert.notNull(recipient, "Recipient parameter should not be null");
 		Assert.hasText(subject, "Subject parameter should not be null or empty text");
 		Assert.hasText(content, "Content parameter should not be null or empty text");
 		Assert.notNull(timestamp, "Timestamp parameter should not be null");
@@ -34,7 +35,7 @@ public final class EmailNotification implements Notification {
 	}
 
 	@Override
-	public String getRecipient() {
+	public RecipientDetails getRecipient() {
 		return recipient;
 	}
 

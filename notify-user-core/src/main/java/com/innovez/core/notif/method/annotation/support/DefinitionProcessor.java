@@ -1,28 +1,29 @@
 package com.innovez.core.notif.method.annotation.support;
 
+import java.util.Collection;
+
 import com.innovez.core.notif.Notification;
-import com.innovez.core.notif.method.annotation.Definition;
 
 /**
- * Base contract for strategy object which can process each {@link Definition}
- * annotation to {@link Notification}.
+ * Base contract for strategy object which can process each {@link DefinitionDetails}
+ * annotation to construct {@link Notification}.
  * 
  * @author zakyalvan
  */
 public interface DefinitionProcessor {
 	/**
-	 * Ask whether {@link DefinitionProcessor} can translate given {@link Definition}
+	 * Ask whether {@link DefinitionProcessor} can translate given {@link DefinitionDetails}
 	 * 
 	 * @param definition
 	 * @return
 	 */
-	boolean supportsDefinition(Definition definition);
+	boolean supportsDefinition(DefinitionDetails definition);
 	
 	/**
-	 * Translate given {@link Definition} into notification.
+	 * Process given {@link DefinitionDetails} into notifications.
 	 * 
 	 * @param definition
 	 * @return
 	 */
-	Notification translateDefinition(Definition definition);
+	Collection<Notification> processDefinition(DefinitionDetails definition);
 }

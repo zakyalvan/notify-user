@@ -5,8 +5,8 @@ import java.util.Map;
 
 import org.springframework.util.Assert;
 
-import com.innovez.core.notif.support.DefaultParameterizedTextHolder;
-import com.innovez.core.notif.support.ParameterizedTextHolder;
+import com.innovez.core.notif.commons.DefaultParameterizedTextHolder;
+import com.innovez.core.notif.commons.ParameterizedTextHolder;
 
 /**
  * Wrapper for email subject.
@@ -20,7 +20,7 @@ public final class TemplatedSubjectInfo implements SubjectInfo {
 	
 	public TemplatedSubjectInfo(String template, Map<String, Object> modelParameters) {
 		Assert.hasText(template);
-		Assert.notEmpty(modelParameters);
+		Assert.notNull(modelParameters);
 		
 		this.templateHolder = new DefaultParameterizedTextHolder(template);
 		this.modelParameters = Collections.unmodifiableMap(modelParameters);

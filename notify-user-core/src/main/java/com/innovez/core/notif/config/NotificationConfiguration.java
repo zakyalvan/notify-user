@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.connection.CachingConnectionFactory;
 
 import com.innovez.core.notif.DefaultNotificationManager;
+import com.innovez.core.notif.email.EmailDefinitionProcessor;
+import com.innovez.core.notif.method.annotation.support.DefinitionProcessingManager;
 import com.innovez.core.notif.method.aspects.PublishNotificationAnnotatedMethodAdvisor;
 
 /**
@@ -52,5 +54,14 @@ public class NotificationConfiguration {
 	public PublishNotificationAnnotatedMethodAdvisor publishNotificationAnnotatedAdvisor() {
 		PublishNotificationAnnotatedMethodAdvisor advisor = PublishNotificationAnnotatedMethodAdvisor.aspectOf();
 		return advisor;
+	}
+	
+	@Bean
+	public DefinitionProcessingManager definitionProcessingManager() {
+		return new DefinitionProcessingManager();
+	}
+	@Bean
+	public EmailDefinitionProcessor emailDefinitionProcessor() {
+		return new EmailDefinitionProcessor();
 	}
 }

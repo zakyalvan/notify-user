@@ -4,35 +4,40 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.innovez.core.notif.Notification;
-import com.innovez.core.notif.method.annotation.Definition;
 
 /**
  * 
  * @author zakyalvan
  */
 public final class DefinitionProcessingManager {
-	@Autowired
-	private Set<DefinitionProcessor> translators;
+	private static final Logger LOGGER = LoggerFactory.getLogger(DefinitionProcessingManager.class);
 	
-	public Collection<DefinitionProcessor> getDefinitionTranslators(Definition definition) {
-		Set<DefinitionProcessor> foundTranslators = new HashSet<DefinitionProcessor>();
-		for(DefinitionProcessor translator : translators) {
-			if(translator.supportsDefinition(definition)) {
-				foundTranslators.add(translator);
+	@Autowired(required=false)
+	private Set<DefinitionProcessor> translators = new HashSet<DefinitionProcessor>();
+	
+	public Collection<DefinitionProcessor> getDefinitionProcessors(DefinitionDetails definition) {
+		Set<DefinitionProcessor> foundProcessors = new HashSet<DefinitionProcessor>();
+		for(DefinitionProcessor processor : translators) {
+			if(processor.supportsDefinition(definition)) {
+				foundProcessors.add(processor);
 			}
 		}
-		return foundTranslators;
+		return foundProcessors;
 	}
-	public Collection<Notification> translateDefinition(Definition definition) {
-		Set<Notification> notifications = new HashSet<Notification>();
+	public Collection<Notification> processDefinition(DefinitionDetails definition) {
+		Collection<DefinitionProcessor> definitionProcessors = getDefinitionProcessors(definition);
 		
-		Collection<DefinitionProcessor> definitionTranslators = getDefinitionTranslators(definition);
-		for(DefinitionProcessor translator : definitionTranslators) {
-			translator.translateDefinition(definition);
+		Set<Notification> processedNotifications = new HashSet<Notification>();
+		LOGGER.debug("Iterate all processor and process given definition details {}", definition.toString());
+		for(DefinitionProcessor processor : definitionProcessors) {
+			LOGGER.debug("Process with {}", processor.toString());
+			processedNotifications.addAll(processor.processDefinition(definition));
 		}
-		return null;
+		return processedNotifications;
 	}
 }

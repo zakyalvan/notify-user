@@ -3,8 +3,10 @@ package com.innovez.core.notif;
 import java.io.Serializable;
 import java.util.Date;
 
+import com.innovez.core.notif.commons.RecipientDetails;
+
 /**
- * Contract for notification object.
+ * Base contract for notification object.
  * 
  * @author zakyalvan
  */
@@ -14,7 +16,7 @@ public interface Notification extends Serializable {
 	 * 
 	 * @return
 	 */
-	String getRecipient();
+	RecipientDetails getRecipient();
 	
 	/**
 	 * Retrieve subject of notification.

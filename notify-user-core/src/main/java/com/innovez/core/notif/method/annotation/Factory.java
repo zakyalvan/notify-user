@@ -6,7 +6,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.innovez.core.notif.support.NotificationFactory;
+import com.innovez.core.notif.NotificationFactory;
 
 /**
  * Annotation type to be used on notification creation process. Factory class
@@ -42,9 +42,9 @@ public @interface Factory {
 	String bean() default "";
 
 	/**
-	 * Parameter declaration to be used in notification factory process.
+	 * Models declaration to be used in notification factory process.
 	 * 
 	 * @return
 	 */
-	Model[] parameters() default {};
+	Model[] models() default {};
 }

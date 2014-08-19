@@ -1,4 +1,4 @@
-package com.innovez.core.notif.method.annotation.support;
+package com.innovez.core.notif.commons;
 
 import java.io.Serializable;
 
@@ -14,4 +14,11 @@ public interface RecipientDetails extends Serializable {
 	 * @return
 	 */
 	String getName();
+
+	/**
+	 * Address of recipient, this should be used as generic address.
+	 * 
+	 * @return
+	 */
+	String getAddress();
 }

@@ -5,8 +5,8 @@ import java.util.Map;
 
 import org.springframework.util.Assert;
 
-import com.innovez.core.notif.support.DefaultParameterizedTextHolder;
-import com.innovez.core.notif.support.ParameterizedTextHolder;
+import com.innovez.core.notif.commons.DefaultParameterizedTextHolder;
+import com.innovez.core.notif.commons.ParameterizedTextHolder;
 
 /**
  * 

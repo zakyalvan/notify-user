@@ -3,7 +3,7 @@ package com.innovez.core.notif.method.annotation.support;
 import java.io.Serializable;
 import java.util.Map;
 
-import com.innovez.core.notif.support.ParameterizedTextHolder;
+import com.innovez.core.notif.commons.ParameterizedTextHolder;
 
 /**
  * Contract for notification's subject holder. Wrapping mechanism allow us to us

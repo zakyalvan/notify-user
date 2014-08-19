@@ -2,23 +2,29 @@ package com.innovez.core.notif.method.annotation.support;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.Map;
 
+import com.innovez.core.notif.commons.RecipientDetails;
 import com.innovez.core.notif.method.annotation.Definition;
-import com.innovez.core.notif.support.ParameterizedTextHolder;
 
 /**
  * Type carrying detail of {@link Definition} annotation.
  * 
  * @author zakyalvan
  */
-public interface DefinitionInfo extends Serializable {
+public interface DefinitionDetails extends Serializable {
 	/**
-	 * Retrieve destination of notification.
+	 * Retrieve type of notification.
 	 * 
 	 * @return
 	 */
-	RecipientDetails getRecipient();
+	NotificationType getType();
+	
+	/**
+	 * Retrieve recipients of notification.
+	 * 
+	 * @return
+	 */
+	Collection<RecipientDetails> getRecipients();
 	
 	/**
 	 * Retrieve subject of notification.

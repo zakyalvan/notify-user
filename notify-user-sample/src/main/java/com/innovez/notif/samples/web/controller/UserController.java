@@ -26,14 +26,14 @@ public class UserController {
 	@Autowired
 	private UserService userService;
 	
-	@RequestMapping(value={"", "/"}, method=RequestMethod.GET)
-	public String registerForm(Model model) {
-		LOGGER.debug("Displaying user registration form");
-		return "users/register";
-	}
+//	@RequestMapping(value={"", "/"}, method=RequestMethod.GET)
+//	public String registerForm(Model model) {
+//		LOGGER.debug("Displaying user registration form");
+//		return "users/register";
+//	}
 	
-	@RequestMapping(value={"", "/"}, method=RequestMethod.POST)
-	public HttpEntity<User> register(@Valid @RequestBody User user, BindingResult bindingResult) {
+	@RequestMapping(value={"", "/"}, method=RequestMethod.GET)
+	public HttpEntity<User> register(/*@Valid @RequestBody User user, BindingResult bindingResult*/) {
 		LOGGER.debug("Handle user registration");
 		User registeredUser = userService.registerUser("zakyalvan", "123", "zakyalvan@gmail.com");
 		return new ResponseEntity<User>(registeredUser, HttpStatus.CREATED);

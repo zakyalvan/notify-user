@@ -7,6 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import com.innovez.core.notif.method.annotation.support.NotificationType;
+import com.innovez.core.notif.method.expression.RecipientResolver;
 
 /**
  * Notification configuration.
@@ -33,11 +34,12 @@ public @interface Definition {
 	String guard() default "true";
 
 	/**
-	 * Recipients of notification.
+	 * Recipient declaration of notification. We can resolve multiple recipient
+	 * using expression in this attribute in conjunction with {@link RecipientResolver}.
 	 * 
 	 * @return
 	 */
-	Recipient[] recipient();
+	Recipient recipient();
 
 	/**
 	 * Subject of notification.
