@@ -25,6 +25,7 @@ public class DataConfiguration {
 	public HibernateJpaVendorAdapter jpaVendorAdapter() {
 		HibernateJpaVendorAdapter jpaVendorAdapter = new HibernateJpaVendorAdapter();
 		jpaVendorAdapter.setShowSql(true);
+		jpaVendorAdapter.setGenerateDdl(true);
 		return jpaVendorAdapter;
 	}
 	

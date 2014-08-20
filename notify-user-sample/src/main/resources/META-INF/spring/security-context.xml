@@ -14,4 +14,8 @@
 		
 		<security:intercept-url pattern="/*" access="hasRole('ROLE_ADMIN')" />
 	</security:http>
+	<security:authentication-manager>
+		<security:authentication-provider user-service-ref="userDetailsService" />
+	</security:authentication-manager>
+	<bean id="userDetailsService" class="com.innovez.notif.samples.security.UserDetailsServiceAdapter" />
 </beans>

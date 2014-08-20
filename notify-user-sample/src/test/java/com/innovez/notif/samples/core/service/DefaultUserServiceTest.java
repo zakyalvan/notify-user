@@ -18,7 +18,7 @@ import com.innovez.notif.samples.core.NotifConfiguration;
 @RunWith(SpringJUnit4ClassRunner.class)
 public class DefaultUserServiceTest {
 	@Autowired
-	private UserService userService;
+	private UserCrudService userService;
 	
 	@Test
 	public void testSendNotification() {
