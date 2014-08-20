@@ -36,7 +36,7 @@ public class UserResetCredentialTicket implements ResetCredentialTicket {
 	
 	@NotNull
 	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name="issued_date")
+	@Column(name="expired_date")
 	private Date expiredDate;
 	
 	@Column(name="available")

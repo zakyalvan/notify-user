@@ -4,6 +4,7 @@ import javax.sql.DataSource;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.orm.jpa.JpaTransactionManager;
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
 @EnableTransactionManagement
+@EnableJpaRepositories
 public class DataConfiguration {
 	@Bean
 	public DataSource dataSource() {
@@ -29,11 +31,11 @@ public class DataConfiguration {
 		return jpaVendorAdapter;
 	}
 	
-	@Bean
+	@Bean(name="entityManagerFactory")
 	public LocalContainerEntityManagerFactoryBean entityManagerFactoryBean() {
 		LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
 		entityManagerFactoryBean.setDataSource(dataSource());
-		entityManagerFactoryBean.setPackagesToScan("com.innovez.notify.core");
+		entityManagerFactoryBean.setPackagesToScan("com.innovez.notif.samples.core");
 		entityManagerFactoryBean.setJpaVendorAdapter(jpaVendorAdapter());
 		return entityManagerFactoryBean;
 	}

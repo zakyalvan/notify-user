@@ -10,7 +10,7 @@ import org.springframework.util.Assert;
  * @author zakyalvan
  */
 public class DefaultCredentialPolicy implements CredentialPolicy {
-	public static final String MIN_USER_CREDENTIAL_LENGTH_KEY = "resetCredentialImmediately";
+	public static final String MIN_USER_CREDENTIAL_LENGTH_KEY = "minUserCredentialLength";
 	public static final String RESET_CREDENTIAL_IMMEDIATELY_KEY = "resetCredentialImmediately";
 	public static final String RESET_CREDENTIAL_TICKET_AGE_KEY = "resetCredentialTicketAge";
 	public static final String CREDENTIAL_AGE_KEY = "credentialAge";

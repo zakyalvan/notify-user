@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
  * @author zakyalvan
  */
 @Component
-public class DefaultPasswordGenerator implements PasswordGenerator {
+public class SimplePasswordGenerator implements PasswordGenerator {
 	@Autowired
 	private CredentialPolicyResolver credentialPolicyResolver;
 	
