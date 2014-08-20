@@ -5,7 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * Default password generator which randomly generate string for password.
+ * Default password generator to be used, which randomly generate string for
+ * password with length depend on security policy configuration.
  * 
  * @author zakyalvan
  */

@@ -8,14 +8,19 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd">
 
 	<security:http auto-config="false" use-expressions="true">
-		<security:form-login login-processing-url="/authenticate" authentication-failure-url="/login?error=true" />
+		<security:form-login login-page="/login" login-processing-url="/authenticate" default-target-url="/" authentication-failure-url="/login?error=true" username-parameter="username" password-parameter="password" />
 		<security:remember-me />
 		<security:logout logout-url="/logout" logout-success-url="/" />
-		
+
 		<security:intercept-url pattern="/*" access="hasRole('ROLE_ADMIN')" />
 	</security:http>
 	<security:authentication-manager>
-		<security:authentication-provider user-service-ref="userDetailsService" />
+		<security:authentication-provider user-service-ref="userDetailsService">
+			<security:password-encoder ref="passwordEncoder" />
+		</security:authentication-provider>
 	</security:authentication-manager>
-	<bean id="userDetailsService" class="com.innovez.notif.samples.security.UserDetailsServiceAdapter" />
+	<bean name="passwordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder">
+		<constructor-arg value="256" />
+	</bean>
+	<bean name="userDetailsService" class="com.innovez.notif.samples.security.UserDetailsServiceAdapter" />
 </beans>

@@ -4,6 +4,11 @@ import java.util.Date;
 
 import com.innovez.notif.samples.core.entity.User;
 
+/**
+ * Contract for type representing reset credential request.
+ * 
+ * @author zakyalvan
+ */
 public interface ResetCredentialTicket {
 	/**
 	 * Retrieve ticket number for reset ticket.

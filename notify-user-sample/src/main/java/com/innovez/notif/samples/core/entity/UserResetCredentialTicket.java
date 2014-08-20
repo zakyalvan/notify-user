@@ -24,6 +24,7 @@ public class UserResetCredentialTicket implements ResetCredentialTicket {
 	@NotEmpty
 	private String number;
 	
+	@Id
 	@NotNull
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="username")

@@ -27,7 +27,7 @@ public class User implements Serializable {
 	
 	@NotBlank
 	@Email
-	@Column(name="email_address")
+	@Column(name="email_address", unique=true)
 	private String emailAddress;
 	
 	@NotBlank

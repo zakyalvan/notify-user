@@ -8,17 +8,30 @@ public class OrganizationCredentialPolicy implements CredentialPolicy {
 	private Integer resetCredentialTicketAge;
 	private Integer credentialAge;
 	
-	@Override
-	public Integer getMinUserCredentialLength() {
-		return null;
-	}
-	
-	
 	public Organization getOrganization() {
 		return organization;
 	}
 	public void setOrganization(Organization organization) {
 		this.organization = organization;
+	}
+	
+	@Override
+	public Integer getCredentialExpirationWarningDay() {
+		return null;
+	}
+	
+	@Override
+	public Integer getCredentialExpirationWarningFrequency() {
+		return null;
+	}
+	@Override
+	public boolean isAlwaysGenerateCredentialOnRegistration() {
+		return false;
+	}
+
+	@Override
+	public Integer getMinUserCredentialLength() {
+		return null;
 	}
 
 	@Override

@@ -11,12 +11,24 @@ import org.springframework.stereotype.Component;
 public class DefaultCredentialPolicyResolver implements CredentialPolicyResolver, InitializingBean {
 	private DefaultCredentialPolicy defaultCredentialPolicy;
 	
+	@Value("${innovez.security.credential.policy.alwaysGenerateCredentialOnRegistration}")
+	private Integer alwaysGenerateCredentialOnRegistration;
+	
+	@Value("${innovez.security.credential.policy.credentialExpirationWarningDay}")
+	private Integer credentialExpirationWarningDay;
+	
+	@Value("${innovez.security.credential.policy.credentialExpirationWarningFrequency}")
+	private Integer credentialExpirationWarningFrequency;
+	
 	@Value("${innovez.security.credential.policy.minUserCredentialLength}")
 	private Integer defaultMinUserCredentialLength;
+	
 	@Value("${innovez.security.credential.policy.resetCredentialImmediately}")
 	private boolean defaultResetCredentialImmediately;
+	
 	@Value("${innovez.security.credential.policy.resetCredentialTicketAge}")
 	private Integer defaultResetCredentialTicketAge;
+	
 	@Value("${innovez.security.credential.policy.credentialAge}")
 	private Integer defaultCredentialAge;
 	
@@ -24,8 +36,8 @@ public class DefaultCredentialPolicyResolver implements CredentialPolicyResolver
 	 * FIXME
 	 * 
 	 * Currently this just returning default credentials policy resolved from
-	 * property source. Next implementation we should improve resolve process to
-	 * be aware of context, for example current user organization policy
+	 * property source. Next implementation we should improve resolving process to
+	 * be aware of execution context, for example current user organization policy.
 	 */
 	@Override
 	public CredentialPolicy resolveCredentialPolicy() {
@@ -35,6 +47,9 @@ public class DefaultCredentialPolicyResolver implements CredentialPolicyResolver
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		Map<String, Object> policyMap = new HashMap<String, Object>();
+		policyMap.put(DefaultCredentialPolicy.ALWAYS_GENERATE_CREDENTIAL_ON_REGISTRATION_KEY, alwaysGenerateCredentialOnRegistration);
+		policyMap.put(DefaultCredentialPolicy.CREDENTIAL_EXPIRATION_WARNING_DAY, credentialExpirationWarningDay);
+		policyMap.put(DefaultCredentialPolicy.CREDENTIAL_EXPIRATION_WARNING_FREQUENCY, credentialExpirationWarningFrequency);
 		policyMap.put(DefaultCredentialPolicy.MIN_USER_CREDENTIAL_LENGTH_KEY, defaultMinUserCredentialLength);
 		policyMap.put(DefaultCredentialPolicy.RESET_CREDENTIAL_IMMEDIATELY_KEY, defaultResetCredentialImmediately);
 		policyMap.put(DefaultCredentialPolicy.RESET_CREDENTIAL_TICKET_AGE_KEY, defaultResetCredentialTicketAge);

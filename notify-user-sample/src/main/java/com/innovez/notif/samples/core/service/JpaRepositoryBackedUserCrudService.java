@@ -1,5 +1,6 @@
 package com.innovez.notif.samples.core.service;
 
+import java.util.Arrays;
 import java.util.Collection;
 
 import org.slf4j.Logger;
@@ -7,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,46 +20,63 @@ import com.innovez.notif.samples.core.repository.UserRepository;
 
 @Service
 @Transactional(readOnly=true)
-public class JpaRepositoryBackedUserManagementService implements UserCrudService {
-	private static final Logger LOGGER = LoggerFactory.getLogger(JpaRepositoryBackedUserManagementService.class);
+public class JpaRepositoryBackedUserCrudService implements UserCrudService {
+	private static final Logger LOGGER = LoggerFactory.getLogger(JpaRepositoryBackedUserCrudService.class);
 	
 	@Autowired
 	private UserRepository userRepository;
 	
 	@Autowired
+	private CredentialPolicyResolver credentialPolicyResolver;
+	
+	@Autowired
 	private PasswordGenerator passwordGenerator;
+	
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 	
 	@Override
 	@Transactional(propagation=Propagation.REQUIRED)
 	@PublishNotification(name="register-user-notif")
 	public User registerUser(User user) {
-		Assert.notNull(user);
+		Assert.notNull(user, "User parameter should not be null.");
 		Assert.isTrue(!isRegisteredUser(user.getUsername()), "Given username already registered for other user.");
 		LOGGER.debug("Register user");
-		return null;
+		
+		String userPassword = user.getPassword();
+		
+		CredentialPolicy credentialPolicy = credentialPolicyResolver.resolveCredentialPolicy();
+		if(credentialPolicy.isAlwaysGenerateCredentialOnRegistration() || userPassword.trim().isEmpty()) {
+			userPassword = passwordGenerator.generatePassword();
+		}
+		
+		String encodedUserPassword = passwordEncoder.encode(userPassword);
+		user.setPassword(encodedUserPassword);
+		
+		return userRepository.save(user);
 	}
 
 	@Override
 	public boolean isRegisteredUser(String username) {
-		Assert.hasText(username);
+		Assert.hasText(username, "Username parameter should not be null or empty text");
 		return userRepository.exists(username);
 	}
 
 	@Override
 	public boolean isRegisteredUserEmailAddress(String emailAddress, String... excludeUsernames) {
-		Assert.hasText(emailAddress);
+		Assert.hasText(emailAddress, "Email address parameter should not be null or empty text");
 		if(excludeUsernames.length > 0) {
-			return false;
+			return userRepository.existsByEmailAddressIgnoreCaseExcludeUsernames(emailAddress, Arrays.asList(excludeUsernames));
 		}
 		else {
-			return false;
+			return userRepository.existsByEmailAddressIgnoreCase(emailAddress);
 		}
 	}
 
 	@Override
 	public User getUserDetails(String username) {
-		Assert.hasText(username);
-		Assert.isTrue(isRegisteredUser(username));
+		Assert.hasText(username, "Username parameter should not be null or empty text");
+		Assert.isTrue(isRegisteredUser(username), "Username parameter is not valid registered user");
 		return userRepository.findOne(username);
 	}
 
