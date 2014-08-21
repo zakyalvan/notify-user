@@ -120,7 +120,6 @@ public aspect PublishNotificationAnnotatedMethodAdvisor implements ApplicationCo
 		
 		LOGGER.debug("Last (so we can add reserved var name), collect custom evaluation context variables, registered by developer");
 		VariableProviderRegistry variableProviderRegistry = new VariableProviderRegistry(evalContextVars.keySet());
-		LOGGER.debug("+++++++ Checkpoint");
 		for(VariableProviderRegistrar contextVariableRegistrar : contextVariableRegistrars) {
 			contextVariableRegistrar.registerVariableProviders(variableProviderRegistry);
 		}

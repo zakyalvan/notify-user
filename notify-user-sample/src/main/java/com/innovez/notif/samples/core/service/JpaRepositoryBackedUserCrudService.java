@@ -8,11 +8,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import com.innovez.core.notif.method.annotation.PublishNotification;
 import com.innovez.notif.samples.core.entity.User;
@@ -46,7 +48,7 @@ public class JpaRepositoryBackedUserCrudService implements UserCrudService {
 		String userPassword = user.getPassword();
 		
 		CredentialPolicy credentialPolicy = credentialPolicyResolver.resolveCredentialPolicy();
-		if(credentialPolicy.isAlwaysGenerateCredentialOnRegistration() || userPassword.trim().isEmpty()) {
+		if(credentialPolicy.isAlwaysGenerateOnRegistration() || userPassword.trim().isEmpty()) {
 			userPassword = passwordGenerator.generatePassword();
 		}
 		
@@ -58,13 +60,18 @@ public class JpaRepositoryBackedUserCrudService implements UserCrudService {
 
 	@Override
 	public boolean isRegisteredUser(String username) {
-		Assert.hasText(username, "Username parameter should not be null or empty text");
+		if(!StringUtils.hasText(username)) {
+			return false;
+		}
 		return userRepository.exists(username);
 	}
 
 	@Override
 	public boolean isRegisteredUserEmailAddress(String emailAddress, String... excludeUsernames) {
-		Assert.hasText(emailAddress, "Email address parameter should not be null or empty text");
+		if(!StringUtils.hasText(emailAddress)) {
+			return false;
+		}
+		
 		if(excludeUsernames.length > 0) {
 			return userRepository.existsByEmailAddressIgnoreCaseExcludeUsernames(emailAddress, Arrays.asList(excludeUsernames));
 		}
@@ -82,7 +89,8 @@ public class JpaRepositoryBackedUserCrudService implements UserCrudService {
 
 	@Override
 	public Collection<User> getUserList() {
-		return userRepository.findAll();
+		Sort sort = new Sort("username", "fullName");
+		return userRepository.findAll(sort);
 	}
 
 	@Override

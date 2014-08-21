@@ -12,7 +12,7 @@ public interface CredentialPolicy {
 	 * 
 	 * @return
 	 */
-	boolean isAlwaysGenerateCredentialOnRegistration();
+	boolean isAlwaysGenerateOnRegistration();
 
 	/**
 	 * Retrieve when to to start warning users if their credential will be
@@ -22,38 +22,46 @@ public interface CredentialPolicy {
 	 * 
 	 * @return
 	 */
-	Integer getCredentialExpirationWarningDay();
+	Integer getExpirationWarningDays();
 
 	/**
 	 * Frequency on warning about credential expiration per day, if warning enabled.
 	 * 
 	 * @return
-	 * @see CredentialPolicy#getCredentialExpirationWarningDay()
+	 * @see CredentialPolicy#getExpirationWarningDays()
 	 */
-	Integer getCredentialExpirationWarningFrequency();
+	Integer getExpirationWarningFrequencies();
 	
 	/**
-	 * Minimum credential length.
+	 * Policy item determine minimum credential's length.
 	 * 
 	 * @return
 	 */
-	Integer getMinUserCredentialLength();
+	Integer getMinimumLength();
 
 	/**
-	 * Policy item determine whether to reset password on reset request
+	 * Policy item determine whether to reset password immediately on reset request
 	 * submitted, or ask user to input their new password on activation.
 	 * 
 	 * @return
 	 */
-	boolean isResetCredentialImmediately();
+	boolean isResetImmediatelyOnResetRequest();
 
+	/**
+	 * Policy item determine whether to expire credential immediately on reset request
+	 * submitted.
+	 * 
+	 * @return
+	 */
+	boolean isExpireImmediatelyOnResetRequest();
+	
 	/**
 	 * Retrieve age of {@link ResetCredentialTicket}, used for determining
 	 * {@link ResetCredentialTicket#getExpiredDate()} value.
 	 * 
 	 * @return
 	 */
-	Integer getResetCredentialTicketAge();
+	Integer getResetTicketMaximumAge();
 
 	/**
 	 * Retrieve credential age, number returned represent number of days the
@@ -61,5 +69,5 @@ public interface CredentialPolicy {
 	 * 
 	 * @return
 	 */
-	Integer getCredentialAge();
+	Integer getMaximumAge();
 }

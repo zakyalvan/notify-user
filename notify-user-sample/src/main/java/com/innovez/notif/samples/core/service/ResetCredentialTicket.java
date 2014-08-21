@@ -25,14 +25,14 @@ public interface ResetCredentialTicket {
 	User getUser();
 
 	/**
-	 * Retrieve timestamp when when {@link ResetCredentialTicket} issued.
+	 * Retrieve time when when {@link ResetCredentialTicket} issued.
 	 * 
 	 * @return
 	 */
 	Date getIssuedDate();
 
 	/**
-	 * Retrieve timestamp when when {@link ResetCredentialTicket} expired.
+	 * Retrieve time when when {@link ResetCredentialTicket} expired.
 	 * 
 	 * @return
 	 */
@@ -44,5 +44,5 @@ public interface ResetCredentialTicket {
 	 * 
 	 * @return
 	 */
-	boolean isAvailable();
+	boolean isActive();
 }

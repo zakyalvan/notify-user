@@ -10,63 +10,67 @@ import org.springframework.util.Assert;
  * @author zakyalvan
  */
 public class DefaultCredentialPolicy implements CredentialPolicy {
-	public static final String ALWAYS_GENERATE_CREDENTIAL_ON_REGISTRATION_KEY = "alwaysGenerateCredentialOnRegistration";
-	public static final String CREDENTIAL_EXPIRATION_WARNING_DAY = "credentialExpirationWarningDay";
-	public static final String CREDENTIAL_EXPIRATION_WARNING_FREQUENCY = "credentialExpirationWarningFrequency";
-	public static final String MIN_USER_CREDENTIAL_LENGTH_KEY = "minUserCredentialLength";
-	public static final String RESET_CREDENTIAL_IMMEDIATELY_KEY = "resetCredentialImmediately";
-	public static final String RESET_CREDENTIAL_TICKET_AGE_KEY = "resetCredentialTicketAge";
-	public static final String CREDENTIAL_AGE_KEY = "credentialAge";
+	public static final String ALWAYS_GENERATE_ON_REGISTRATION_KEY = "alwaysGenerateOnRegistration";
+	public static final String EXPIRATION_WARNING_DAYS_KEY = "expirationWarningDays";
+	public static final String EXPIRATION_WARNING_FREQUENCIES_KEY = "expirationWarningFrequencies";
+	public static final String MINIMUM_LENGTH_KEY = "minimumLength";
+	public static final String RESET_IMMEDIATELY_ON_RESET_REQUEST_KEY = "resetImmediatelyOnResetRequest";
+	public static final String EXPIRE_IMMEDIATELY_ON_RESET_REQUEST_KEY = "expireImmediatelyOnResetRequest";
+	public static final String RESET_TICKET_MAXIMUM_AGE_KEY = "resetTicketMaximumAge";
+	public static final String MAXIMUM_AGE_KEY = "maximumAge";
 	
-	private final boolean alwaysGenerateCredentialOnRegistration;
-	private final Integer credentialExpirationWarningDay;
-	private final Integer credentialExpirationWarningFrequency;
-	private final Integer minUserCredentialLength;
-	private final boolean resetCredentialImmediately;
-	private final Integer resetCredentialTicketAge;
-	private final Integer credentialAge;
+	private final boolean alwaysGenerateOnRegistration;
+	private final Integer expirationWarningDays;
+	private final Integer expirationWarningFrequencies;
+	private final Integer minimumLength;
+	private final boolean resetImmediatelyOnResetRequest;
+	private final boolean expireImmediatelyOnResetRequest;
+	private final Integer resetTicketMaximumAge;
+	private final Integer maximumAge;
 	
 	public DefaultCredentialPolicy(Map<String, Object> policyMap) {
 		Assert.notEmpty(policyMap, "Credential policies map should not be null");
 		
-		alwaysGenerateCredentialOnRegistration = (boolean) policyMap.get(ALWAYS_GENERATE_CREDENTIAL_ON_REGISTRATION_KEY);
-		credentialExpirationWarningDay = (Integer) policyMap.get(CREDENTIAL_EXPIRATION_WARNING_DAY);
-		credentialExpirationWarningFrequency = (Integer) policyMap.get(CREDENTIAL_EXPIRATION_WARNING_FREQUENCY);
-		minUserCredentialLength = (Integer) policyMap.get(MIN_USER_CREDENTIAL_LENGTH_KEY);
-		resetCredentialImmediately = (boolean) policyMap.get(RESET_CREDENTIAL_IMMEDIATELY_KEY);
-		resetCredentialTicketAge = (Integer) policyMap.get(RESET_CREDENTIAL_TICKET_AGE_KEY);
-		credentialAge = (Integer) policyMap.get(CREDENTIAL_AGE_KEY);
+		alwaysGenerateOnRegistration = (boolean) policyMap.get(ALWAYS_GENERATE_ON_REGISTRATION_KEY);
+		expirationWarningDays = (Integer) policyMap.get(EXPIRATION_WARNING_DAYS_KEY);
+		expirationWarningFrequencies = (Integer) policyMap.get(EXPIRATION_WARNING_FREQUENCIES_KEY);
+		minimumLength = (Integer) policyMap.get(MINIMUM_LENGTH_KEY);
+		resetImmediatelyOnResetRequest = (boolean) policyMap.get(RESET_IMMEDIATELY_ON_RESET_REQUEST_KEY);
+		expireImmediatelyOnResetRequest = (boolean) policyMap.get(EXPIRE_IMMEDIATELY_ON_RESET_REQUEST_KEY);
+		resetTicketMaximumAge = (Integer) policyMap.get(RESET_TICKET_MAXIMUM_AGE_KEY);
+		maximumAge = (Integer) policyMap.get(MAXIMUM_AGE_KEY);
 	}
 	
 	@Override
-	public boolean isAlwaysGenerateCredentialOnRegistration() {
-		return alwaysGenerateCredentialOnRegistration;
-	}
-	
-	@Override
-	public Integer getCredentialExpirationWarningDay() {
-		return credentialExpirationWarningDay;
-	}
-
-	@Override
-	public Integer getCredentialExpirationWarningFrequency() {
-		return credentialExpirationWarningFrequency;
-	}
-
-	@Override
-	public Integer getMinUserCredentialLength() {
-		return minUserCredentialLength;
+	public boolean isAlwaysGenerateOnRegistration() {
+		return alwaysGenerateOnRegistration;
 	}
 	@Override
-	public boolean isResetCredentialImmediately() {
-		return resetCredentialImmediately;
+	public Integer getExpirationWarningDays() {
+		return expirationWarningDays;
 	}
 	@Override
-	public Integer getResetCredentialTicketAge() {
-		return resetCredentialTicketAge;
+	public Integer getExpirationWarningFrequencies() {
+		return expirationWarningFrequencies;
 	}
 	@Override
-	public Integer getCredentialAge() {
-		return credentialAge;
+	public Integer getMinimumLength() {
+		return minimumLength;
+	}
+	@Override
+	public boolean isResetImmediatelyOnResetRequest() {
+		return resetImmediatelyOnResetRequest;
+	}
+	@Override
+	public boolean isExpireImmediatelyOnResetRequest() {
+		return expireImmediatelyOnResetRequest;
+	}
+	@Override
+	public Integer getResetTicketMaximumAge() {
+		return resetTicketMaximumAge;
+	}
+	@Override
+	public Integer getMaximumAge() {
+		return maximumAge;
 	}
 }

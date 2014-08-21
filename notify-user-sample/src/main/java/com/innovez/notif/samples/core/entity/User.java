@@ -26,6 +26,10 @@ public class User implements Serializable {
 	private String username;
 	
 	@NotBlank
+	@Column(name="full_name")
+	private String fullName;
+	
+	@NotBlank
 	@Email
 	@Column(name="email_address", unique=true)
 	private String emailAddress;
@@ -39,22 +43,23 @@ public class User implements Serializable {
 	private Set<Role> roles = new HashSet<Role>();
 	
 	@Column(name="account_expired")
-	private boolean accountExpired;
+	private boolean accountExpired = false;
 	
 	@Column(name="account_locked")
-	private boolean accountLocked;
+	private boolean accountLocked = false;
 	
-	@Column(name="creadentials_expired")
-	private boolean credentialsExpired;
+	@Column(name="credentials_expired")
+	private boolean credentialsExpired = false;
 	
 	@Column(name="enabled")
-	private boolean enabled;
+	private boolean enabled = true;
 	
 	public User() {}
-	public User(String username, String password, String emailAddress) {
+	public User(String username, String fullName, String emailAddress, String password) {
 		this.username = username;
-		this.password = password;
+		this.fullName = fullName;
 		this.emailAddress = emailAddress;
+		this.password = password;
 	}
 	
 	public String getUsername() {
@@ -64,6 +69,13 @@ public class User implements Serializable {
 		this.username = username;
 	}
 
+	public String getFullName() {
+		return fullName;
+	}
+	public void setFullName(String fullName) {
+		this.fullName = fullName;
+	}
+	
 	public String getEmailAddress() {
 		return emailAddress;
 	}
@@ -102,7 +114,7 @@ public class User implements Serializable {
 	public boolean isCredentialsExpired() {
 		return credentialsExpired;
 	}
-	public void setCreadentialsExpired(boolean credentialsExpired) {
+	public void setCredentialsExpired(boolean credentialsExpired) {
 		this.credentialsExpired = credentialsExpired;
 	}
 

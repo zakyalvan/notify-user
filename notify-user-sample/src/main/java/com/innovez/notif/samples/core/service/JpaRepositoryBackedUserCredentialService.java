@@ -2,6 +2,7 @@ package com.innovez.notif.samples.core.service;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,21 +39,29 @@ public class JpaRepositoryBackedUserCredentialService implements UserCredentialS
 	
 	@Override
 	@Transactional(propagation=Propagation.REQUIRED)
-	public ResetCredentialTicket resetUserPassword(String username) {
+	public ResetCredentialTicket createResetTicket(String username) {
 		Assert.hasText(username, "Username parameter should not be null or empty parameter");
 		Assert.isTrue(userService.isRegisteredUser(username), "Given username is not valid registered username");
 		
-		LOGGER.debug("Initiating reset password of user with username {}", username);
+		LOGGER.debug("Initiating reset password of user with username {}. First check whether any available ticket created before, deactivate if exits.", username);
+		if(hasValidResetTicket(username)) {
+			ResetCredentialTicket activeTicket = getValidResetTicket(username);
+			
+		}
 		
 		User user = userService.getUserDetails(username);
 		
 		CredentialPolicy credentialPolicy = credentialPolicyResolver.resolveCredentialPolicy();
-		if(credentialPolicy.isResetCredentialImmediately()) {
+		if(credentialPolicy.isResetImmediatelyOnResetRequest()) {
 			LOGGER.debug("Reset credential immediately.");
 			String generatedPassword = passwordGenerator.generatePassword();
 			String encodedPassword = passwordEncoder.encode(generatedPassword);
 			user.setPassword(encodedPassword);
 			user = userService.updateUser(user);
+		}
+		if(credentialPolicy.isExpireImmediatelyOnResetRequest()) {
+			LOGGER.debug("Expire credential immediately.");
+			user.setCredentialsExpired(true);
 		}
 		
 		UserResetCredentialTicket resetTicket = new UserResetCredentialTicket();
@@ -63,7 +72,7 @@ public class JpaRepositoryBackedUserCredentialService implements UserCredentialS
 		Date issuedDate = new Date();
 		resetTicket.setIssuedDate(issuedDate);
 		
-		Integer credentialAge = credentialPolicy.getCredentialAge();
+		Integer credentialAge = credentialPolicy.getMaximumAge();
 		if(credentialAge > 0) {
 			Calendar calendar = Calendar.getInstance();
 			calendar.add(Calendar.DATE, credentialAge);
@@ -71,17 +80,21 @@ public class JpaRepositoryBackedUserCredentialService implements UserCredentialS
 			Date expiredDate = calendar.getTime();
 			resetTicket.setExpiredDate(expiredDate);
 		}
-
 		return resetTicketRepository.save(resetTicket);
 	}
 
 	@Override
-	public boolean hasResetCredentialTicket(String username) {
+	public boolean hasValidResetTicket(String username) {
 		return false;
 	}
 
 	@Override
-	public ResetCredentialTicket getResetCredentialTicket(String username) {
+	public ResetCredentialTicket getValidResetTicket(String username) {
+		return null;
+	}
+	
+	@Override
+	public List<ResetCredentialTicket> getValidResetTicketList() {
 		return null;
 	}
 

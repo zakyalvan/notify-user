@@ -16,26 +16,26 @@ public class OrganizationCredentialPolicy implements CredentialPolicy {
 	}
 	
 	@Override
-	public Integer getCredentialExpirationWarningDay() {
+	public Integer getExpirationWarningDays() {
 		return null;
 	}
 	
 	@Override
-	public Integer getCredentialExpirationWarningFrequency() {
+	public Integer getExpirationWarningFrequencies() {
 		return null;
 	}
 	@Override
-	public boolean isAlwaysGenerateCredentialOnRegistration() {
+	public boolean isAlwaysGenerateOnRegistration() {
 		return false;
 	}
 
 	@Override
-	public Integer getMinUserCredentialLength() {
+	public Integer getMinimumLength() {
 		return null;
 	}
 
 	@Override
-	public boolean isResetCredentialImmediately() {
+	public boolean isResetImmediatelyOnResetRequest() {
 		return resetCredentialImmediately;
 	}
 	public void setResetCredentialImmediately(boolean resetCredentialImmediately) {
@@ -43,7 +43,13 @@ public class OrganizationCredentialPolicy implements CredentialPolicy {
 	}
 
 	@Override
-	public Integer getResetCredentialTicketAge() {
+	public boolean isExpireImmediatelyOnResetRequest() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
+	@Override
+	public Integer getResetTicketMaximumAge() {
 		return resetCredentialTicketAge;
 	}
 	public void setResetCredentialTicketAge(Integer resetCredentialTicketAge) {
@@ -51,7 +57,7 @@ public class OrganizationCredentialPolicy implements CredentialPolicy {
 	}
 
 	@Override
-	public Integer getCredentialAge() {
+	public Integer getMaximumAge() {
 		return credentialAge;
 	}
 	public void setCredentialAge(Integer credentialAge) {

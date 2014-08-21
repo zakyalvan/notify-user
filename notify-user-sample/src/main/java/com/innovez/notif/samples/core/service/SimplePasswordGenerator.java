@@ -17,7 +17,7 @@ public class SimplePasswordGenerator implements PasswordGenerator {
 	
 	@Override
 	public String generatePassword() {
-		Integer minUserCredentialLength = credentialPolicyResolver.resolveCredentialPolicy().getMinUserCredentialLength();
+		Integer minUserCredentialLength = credentialPolicyResolver.resolveCredentialPolicy().getMinimumLength();
 		return RandomStringUtils.randomAlphanumeric(minUserCredentialLength);
 	}
 }

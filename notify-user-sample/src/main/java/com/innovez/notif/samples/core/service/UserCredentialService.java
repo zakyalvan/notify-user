@@ -1,5 +1,7 @@
 package com.innovez.notif.samples.core.service;
 
+import java.util.List;
+
 
 public interface UserCredentialService {
 	/**
@@ -12,23 +14,30 @@ public interface UserCredentialService {
 	 * 
 	 * @param username
 	 */
-	ResetCredentialTicket resetUserPassword(String username);
+	ResetCredentialTicket createResetTicket(String username);
 	
 	/**
-	 * Ask whether given user has valid or available credential ticket.
+	 * Ask whether given user has valid {@link ResetCredentialTicket}.
 	 * 
 	 * @param username
 	 * @return
 	 */
-	boolean hasResetCredentialTicket(String username);
+	boolean hasValidResetTicket(String username);
 	
 	/**
-	 * Retrieve available {@link ResetCredentialTicket}.
+	 * Retrieve valid {@link ResetCredentialTicket} for given username.
 	 * 
 	 * @param username
 	 * @return
 	 */
-	ResetCredentialTicket getResetCredentialTicket(String username);
+	ResetCredentialTicket getValidResetTicket(String username);
+	
+	/**
+	 * Retrieve all valid {@link ResetCredentialTicket} form ticket database.
+	 * 
+	 * @return
+	 */
+	List<ResetCredentialTicket> getValidResetTicketList();
 	
 	/**
 	 * Activate user.

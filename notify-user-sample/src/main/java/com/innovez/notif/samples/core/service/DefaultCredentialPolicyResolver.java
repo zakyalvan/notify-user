@@ -9,28 +9,34 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class DefaultCredentialPolicyResolver implements CredentialPolicyResolver, InitializingBean {
+	/**
+	 * Default {@link CredentialPolicy} value.
+	 */
 	private DefaultCredentialPolicy defaultCredentialPolicy;
 	
-	@Value("${innovez.security.credential.policy.alwaysGenerateCredentialOnRegistration}")
-	private Integer alwaysGenerateCredentialOnRegistration;
+	@Value("${innovez.security.credential.policy.alwaysGenerateOnRegistration}")
+	private boolean defaultAlwaysGenerateOnRegistration;
 	
-	@Value("${innovez.security.credential.policy.credentialExpirationWarningDay}")
-	private Integer credentialExpirationWarningDay;
+	@Value("${innovez.security.credential.policy.expirationWarningDays}")
+	private Integer defaultExpirationWarningDays;
 	
-	@Value("${innovez.security.credential.policy.credentialExpirationWarningFrequency}")
-	private Integer credentialExpirationWarningFrequency;
+	@Value("${innovez.security.credential.policy.expirationWarningFrequencies}")
+	private Integer defaultExpirationWarningFrequencies;
 	
-	@Value("${innovez.security.credential.policy.minUserCredentialLength}")
-	private Integer defaultMinUserCredentialLength;
+	@Value("${innovez.security.credential.policy.minimumLength}")
+	private Integer defaultMinimumLength;
 	
-	@Value("${innovez.security.credential.policy.resetCredentialImmediately}")
-	private boolean defaultResetCredentialImmediately;
+	@Value("${innovez.security.credential.policy.resetImmediatelyOnResetRequest}")
+	private boolean defaultResetImmediatelyOnResetRequest;
 	
-	@Value("${innovez.security.credential.policy.resetCredentialTicketAge}")
-	private Integer defaultResetCredentialTicketAge;
+	@Value("${innovez.security.credential.policy.expireImmediatelyOnResetRequest}")
+	private boolean defaultExpireImmediatelyOnResetRequest;
 	
-	@Value("${innovez.security.credential.policy.credentialAge}")
-	private Integer defaultCredentialAge;
+	@Value("${innovez.security.credential.policy.resetTicketMaximumAge}")
+	private Integer defaultResetTicketMaximumAge;
+	
+	@Value("${innovez.security.credential.policy.maximumAge}")
+	private Integer defaultMaximumAge;
 	
 	/**
 	 * FIXME
@@ -47,14 +53,14 @@ public class DefaultCredentialPolicyResolver implements CredentialPolicyResolver
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		Map<String, Object> policyMap = new HashMap<String, Object>();
-		policyMap.put(DefaultCredentialPolicy.ALWAYS_GENERATE_CREDENTIAL_ON_REGISTRATION_KEY, alwaysGenerateCredentialOnRegistration);
-		policyMap.put(DefaultCredentialPolicy.CREDENTIAL_EXPIRATION_WARNING_DAY, credentialExpirationWarningDay);
-		policyMap.put(DefaultCredentialPolicy.CREDENTIAL_EXPIRATION_WARNING_FREQUENCY, credentialExpirationWarningFrequency);
-		policyMap.put(DefaultCredentialPolicy.MIN_USER_CREDENTIAL_LENGTH_KEY, defaultMinUserCredentialLength);
-		policyMap.put(DefaultCredentialPolicy.RESET_CREDENTIAL_IMMEDIATELY_KEY, defaultResetCredentialImmediately);
-		policyMap.put(DefaultCredentialPolicy.RESET_CREDENTIAL_TICKET_AGE_KEY, defaultResetCredentialTicketAge);
-		policyMap.put(DefaultCredentialPolicy.CREDENTIAL_AGE_KEY, defaultCredentialAge);
-		
+		policyMap.put(DefaultCredentialPolicy.ALWAYS_GENERATE_ON_REGISTRATION_KEY, defaultAlwaysGenerateOnRegistration);
+		policyMap.put(DefaultCredentialPolicy.EXPIRATION_WARNING_DAYS_KEY, defaultExpirationWarningDays);
+		policyMap.put(DefaultCredentialPolicy.EXPIRATION_WARNING_FREQUENCIES_KEY, defaultExpirationWarningFrequencies);
+		policyMap.put(DefaultCredentialPolicy.MINIMUM_LENGTH_KEY, defaultMinimumLength);
+		policyMap.put(DefaultCredentialPolicy.RESET_IMMEDIATELY_ON_RESET_REQUEST_KEY, defaultResetImmediatelyOnResetRequest);
+		policyMap.put(DefaultCredentialPolicy.EXPIRE_IMMEDIATELY_ON_RESET_REQUEST_KEY, defaultExpireImmediatelyOnResetRequest);
+		policyMap.put(DefaultCredentialPolicy.RESET_TICKET_MAXIMUM_AGE_KEY, defaultResetTicketMaximumAge);
+		policyMap.put(DefaultCredentialPolicy.MAXIMUM_AGE_KEY, defaultMaximumAge);	
 		defaultCredentialPolicy = new DefaultCredentialPolicy(policyMap);
 	}
 }

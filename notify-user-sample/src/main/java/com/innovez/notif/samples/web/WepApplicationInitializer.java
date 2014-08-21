@@ -9,6 +9,7 @@ import org.springframework.orm.jpa.support.OpenEntityManagerInViewFilter;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.filter.DelegatingFilterProxy;
+import org.springframework.web.filter.HiddenHttpMethodFilter;
 import org.springframework.web.servlet.support.AbstractDispatcherServletInitializer;
 
 import com.innovez.notif.samples.core.CoreConfiguration;
@@ -43,6 +44,10 @@ public class WepApplicationInitializer extends AbstractDispatcherServletInitiali
 	@Override
 	protected Filter[] getServletFilters() {
 		Collection<Filter> filters = new ArrayList<Filter>();
+		
+		HiddenHttpMethodFilter methodFilter = new HiddenHttpMethodFilter();
+		filters.add(methodFilter);
+		
 		OpenEntityManagerInViewFilter persistenceFilter = new OpenEntityManagerInViewFilter();
 		filters.add(persistenceFilter);
 		

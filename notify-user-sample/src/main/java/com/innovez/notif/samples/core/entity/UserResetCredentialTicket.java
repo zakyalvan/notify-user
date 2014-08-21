@@ -24,7 +24,6 @@ public class UserResetCredentialTicket implements ResetCredentialTicket {
 	@NotEmpty
 	private String number;
 	
-	@Id
 	@NotNull
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="username")
@@ -41,7 +40,7 @@ public class UserResetCredentialTicket implements ResetCredentialTicket {
 	private Date expiredDate;
 	
 	@Column(name="available")
-	private boolean available = false;
+	private boolean active = false;
 
 	@Override
 	public String getNumber() {
@@ -76,10 +75,10 @@ public class UserResetCredentialTicket implements ResetCredentialTicket {
 	}
 
 	@Override
-	public boolean isAvailable() {
-		return available;
+	public boolean isActive() {
+		return active;
 	}
-	public void setAvailable(boolean available) {
-		this.available = available;
+	public void setAvailable(boolean active) {
+		this.active = active;
 	}
 }

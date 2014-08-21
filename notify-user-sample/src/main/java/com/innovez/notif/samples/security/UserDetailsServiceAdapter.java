@@ -2,6 +2,7 @@ package com.innovez.notif.samples.security;
 
 import java.util.HashSet;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -10,6 +11,7 @@ import com.innovez.notif.samples.core.entity.User;
 import com.innovez.notif.samples.core.service.UserCrudService;
 
 public class UserDetailsServiceAdapter implements UserDetailsService {
+	@Autowired
 	private UserCrudService userService;
 	
 	@Override
