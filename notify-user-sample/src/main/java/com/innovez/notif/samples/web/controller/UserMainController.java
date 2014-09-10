@@ -1,5 +1,6 @@
 package com.innovez.notif.samples.web.controller;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -74,8 +75,14 @@ public class UserMainController {
 		return "users/register";
 	}
 	
+	@ModelAttribute("roles")
+	public Collection<Role> roles() {
+		LOGGER.debug("++++++++++++++++++++++++++++++++++++++++++++");
+		return new ArrayList<Role>();
+	}
+	
 	@RequestMapping(value={"", "/"}, method=RequestMethod.POST)
-	public String register(@Valid @ModelAttribute("command") User user, BindingResult bindingResult, SessionStatus sessionStatus) {
+	public String register(@Valid @ModelAttribute("command") User user, BindingResult bindingResult, Model model, SessionStatus sessionStatus) {
 		LOGGER.debug("Handle user registration");
 		
 		if(userService.isRegisteredUser(user.getUsername())) {
@@ -87,6 +94,8 @@ public class UserMainController {
 		
 		if(bindingResult.hasErrors()) {
 			LOGGER.debug("Binding result contains errors {}, show the form again", bindingResult.getFieldErrors().toString());
+			List<Role> roles = roleRepository.findAll();
+			model.addAttribute("roles", roles);
 			return "users/register";
 		}
 		

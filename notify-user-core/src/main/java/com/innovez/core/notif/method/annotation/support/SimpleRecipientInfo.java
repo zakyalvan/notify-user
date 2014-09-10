@@ -39,6 +39,12 @@ public final class SimpleRecipientInfo implements RecipientDetails {
 		return address;
 	}
 
+	@Override
+	public String toString() {
+		return "SimpleRecipientInfo [name=" + name + ", type=" + type
+				+ ", address=" + address + "]";
+	}
+
 	public static enum Type {
 		TO, 
 		CC, 

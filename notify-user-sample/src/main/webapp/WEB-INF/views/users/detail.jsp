@@ -1,3 +1,7 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<spring:url value="/users" var="usersBaseUrl" />
 <!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -17,9 +21,13 @@
 		<![endif]-->
 	</head>
 	<body>
-		<h1>Login Page</h1>
-	
-		<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+		<div class="container">
+			<h2 class="page-header">User Detail</h2>
+			
+		</div>
+
+
+	<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
 		<script src="/assets/js/jquery.min.js"></script>
 		<!-- Include all compiled plugins (below), or include individual files as needed -->
 		<script src="/assets/js/bootstrap.min.js"></script>

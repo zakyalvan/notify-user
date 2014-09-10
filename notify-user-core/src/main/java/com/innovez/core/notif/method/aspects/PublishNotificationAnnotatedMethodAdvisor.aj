@@ -90,11 +90,11 @@ public aspect PublishNotificationAnnotatedMethodAdvisor implements ApplicationCo
 		
 		LOGGER.debug("Create SpEL evaluation context with advised join point target object as root object.");
 		StandardEvaluationContext evaluationContext = new StandardEvaluationContext(targetObject);
-		Map<String, Object> evalContextVars = new HashMap<String, Object>();
+		Map<String, Object> evaluationContextVariables = new HashMap<String, Object>();
 		
 		LOGGER.debug("Add, by default, all method arguments as SpEL evaluation context variables with name 'args'.");
 		Object[] methodArgs = thisJoinPoint.getArgs();
-		evalContextVars.put("args", methodArgs);
+		evaluationContextVariables.put("args", methodArgs);
 		
 		MethodSignature methodSignature = (MethodSignature) thisJoinPoint.getSignature();
 		Method method = methodSignature.getMethod();
@@ -107,7 +107,7 @@ public aspect PublishNotificationAnnotatedMethodAdvisor implements ApplicationCo
 				if(methodArgAnnotation instanceof Named) {
 					String overrideArgName = ((Named) methodArgAnnotation).value();
 					LOGGER.debug("Found @Named argument with name {} and value {}. Add as SpEL evaluation context variable", overrideArgName, methodArgs[i]);
-					evalContextVars.put(overrideArgName, methodArgs[i]);
+					evaluationContextVariables.put(overrideArgName, methodArgs[i]);
 				}
 			}
 		}
@@ -115,21 +115,23 @@ public aspect PublishNotificationAnnotatedMethodAdvisor implements ApplicationCo
 		LOGGER.debug("Proceed the method {}.{} execution on advised join point", methodSignature.getDeclaringTypeName(), methodSignature.getName());
 		Object returnedObject = proceed(targetObject, publishNotification);
 		
-		LOGGER.debug("Add returned object as SpEL evaluation context variable with name 'ret'");
-		evalContextVars.put("ret", returnedObject);
+		if(!Void.class.isAssignableFrom(returnedObject.getClass())) {
+			LOGGER.debug("Returned object {} is not void type ({}), add as SpEL evaluation context variable with name 'returned'", returnedObject.getClass().getName(), returnedObject);
+			evaluationContextVariables.put("returned", returnedObject);
+		}
 		
-		LOGGER.debug("Last (so we can add reserved var name), collect custom evaluation context variables, registered by developer");
-		VariableProviderRegistry variableProviderRegistry = new VariableProviderRegistry(evalContextVars.keySet());
+		LOGGER.debug("Register custom evaluation context variable, declared using VariableProviderRegistrar");
+		VariableProviderRegistry variableProviderRegistry = new VariableProviderRegistry(evaluationContextVariables.keySet());
 		for(VariableProviderRegistrar contextVariableRegistrar : contextVariableRegistrars) {
 			contextVariableRegistrar.registerVariableProviders(variableProviderRegistry);
 		}
 		
 		for(VariableProvider variableProvider : variableProviderRegistry.getAll()) {
-			evalContextVars.put(variableProvider.getName(), variableProvider.getVariable());
+			evaluationContextVariables.put(variableProvider.getName(), variableProvider.getVariable());
 		}
 		
-		LOGGER.debug("Set all variables into evaluation context");
-		evaluationContext.setVariables(evalContextVars);
+		LOGGER.debug("Set all evaluation context variables ({}) as SpEL evaluation context", evaluationContextVariables);
+		evaluationContext.setVariables(evaluationContextVariables);
 		
 		LOGGER.debug("After execution of advised method on target object, here we start sends the notifications");
 		Map<String, Object> globalModels = evaluateDeclaredModels(Arrays.asList(publishNotification.models()), evaluationContext, new HashMap<String, Object>());
@@ -148,18 +150,26 @@ public aspect PublishNotificationAnnotatedMethodAdvisor implements ApplicationCo
 	 * @return
 	 */
 	private Map<String, Object> evaluateDeclaredModels(Collection<Model> modelAnnotations, EvaluationContext evaluationContext, Map<String, Object> globalModels) {
-		LOGGER.debug("Starting parameters evaluation");
+		LOGGER.debug("Starting models evaluation");
 		
 		Map<String, Object> evaluatedModels = new HashMap<String, Object>();
-		if(globalModels != null) {
+		if(globalModels != null && !globalModels.isEmpty()) {
+			LOGGER.debug("Add all global models to evaluated models object, so global model will be replaced if same name found");
 			evaluatedModels.putAll(globalModels);
 		}
 		
 		for(Model modelAnnotation : modelAnnotations) {
-			String parameterExpressionString = modelAnnotation.expression();
-			Expression parameterExpression = expressionParser.parseExpression(parameterExpressionString);
-			evaluatedModels.put(modelAnnotation.name(), parameterExpression.getValue(evaluationContext));
+			String modelName = modelAnnotation.name();
+			
+			String modelExpressionString = modelAnnotation.expression();
+			Expression modelExpression = expressionParser.parseExpression(modelExpressionString);
+			Object modelObject = modelExpression.getValue(evaluationContext);
+			
+			LOGGER.debug("Model with name '{}' and expression '{}' evaluated to obeject {}. Add to models", modelName, modelExpressionString, modelObject);
+			
+			evaluatedModels.put(modelName, modelObject);
 		}
+
 		return evaluatedModels;
 	}
 
@@ -173,29 +183,29 @@ public aspect PublishNotificationAnnotatedMethodAdvisor implements ApplicationCo
 	private void processDefinitionDeclarations(Collection<Definition> definitionAnnotations, EvaluationContext evaluationContext, Map<String, Object> globalModels) {
 		LOGGER.debug("Process all declared definitions, create notification object for each of them");
 		for(Definition definition : definitionAnnotations) {
-			String selectorExpressionString = definition.guard();
-			if(selectorExpressionString.trim().isEmpty()) {
-				selectorExpressionString = "false";
+			String guardExpressionString = definition.guard();
+			if(guardExpressionString.trim().isEmpty()) {
+				guardExpressionString = "false";
 			}
 			
-			Expression selectorExpression = expressionParser.parseExpression(selectorExpressionString);
-			if(!selectorExpression.getValue(evaluationContext, Boolean.class)) {
-				LOGGER.debug("Definition selector string '{}' evaluated to false, abort processing", selectorExpressionString);
+			Expression guardExpression = expressionParser.parseExpression(guardExpressionString);
+			if(!guardExpression.getValue(evaluationContext, Boolean.class)) {
+				LOGGER.debug("Definition guard '{}' evaluated to false, abort processing", guardExpressionString);
 				continue;
 			}
 			
-			LOGGER.debug("Definition selector string '{}' evaluated to true, process definition further", selectorExpressionString);
-			
-			LOGGER.debug("Process recipients");
+			LOGGER.debug("Process recipients on definition");
 			Collection<RecipientDetails> recipients = new HashSet<RecipientDetails>();
 			
 			Recipient recipientAnnotation = definition.recipient();
 			String nameExpressionString = recipientAnnotation.name();
 			String addressExpressionString = recipientAnnotation.address();
 			if(!addressExpressionString.trim().isEmpty()) {
+				LOGGER.debug("Evaluate name expression ({}) and address expression ({}) on recipient", nameExpressionString, addressExpressionString);
+				
 				Expression nameExpression = expressionParser.parseExpression(nameExpressionString);
 				Expression addressExpression = expressionParser.parseExpression(addressExpressionString);
-				// WOW, nested try, this just a trick!
+				// Nested try, this just a trick!
 				try {
 					String evaluatedAddress = addressExpression.getValue(evaluationContext, String.class);
 					try {
@@ -203,17 +213,19 @@ public aspect PublishNotificationAnnotatedMethodAdvisor implements ApplicationCo
 						recipients.add(new SimpleRecipientDetails(evaluatedName, evaluatedAddress));
 					}
 					catch(EvaluationException nameEvaluationException) {
+						LOGGER.error("Evaluation of name expression ({}) as recipient name failed with message '{}'", nameExpressionString, nameEvaluationException.getMessage());
 						recipients.add(new SimpleRecipientDetails(nameExpressionString, evaluatedAddress));
 					}
 				}
 				catch(EvaluationException addressEvaluationException) {
+					LOGGER.error("Evaluation of address expression ({}) as recipient address failed with message '{}'", addressExpressionString, addressEvaluationException.getMessage());
 					recipients.add(new SimpleRecipientDetails(nameExpressionString, addressExpressionString));
 				}
 			}
 			
 			LOGGER.debug("Send notification for each recipient resolved");
 			for(RecipientDetails recipient : recipients) {
-				LOGGER.debug("Add recipient {} as evaluation context variable with name 'recipient', so we can reference in subject and content expression", recipient);
+				LOGGER.debug("Add recipient {} as evaluation context variable with name 'recipient', so we can refer recipient in subject and content expression (using #recipient.address or #recipient.name)", recipient);
 				evaluationContext.setVariable("recipient", recipient);
 
 				Map<String, Object> clonedGlobalModels = new HashMap<String, Object>(globalModels);

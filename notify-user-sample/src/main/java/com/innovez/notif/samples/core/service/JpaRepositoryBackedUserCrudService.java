@@ -16,7 +16,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
+import com.innovez.core.notif.method.annotation.Content;
+import com.innovez.core.notif.method.annotation.Definition;
+import com.innovez.core.notif.method.annotation.Model;
+import com.innovez.core.notif.method.annotation.Named;
 import com.innovez.core.notif.method.annotation.PublishNotification;
+import com.innovez.core.notif.method.annotation.Recipient;
+import com.innovez.core.notif.method.annotation.Subject;
 import com.innovez.notif.samples.core.entity.User;
 import com.innovez.notif.samples.core.repository.UserRepository;
 
@@ -39,8 +45,20 @@ public class JpaRepositoryBackedUserCrudService implements UserCrudService {
 	
 	@Override
 	@Transactional(propagation=Propagation.REQUIRED)
-	@PublishNotification(name="register-user-notif")
-	public User registerUser(User user) {
+	@PublishNotification(name="register-user", definitions={
+		@Definition(
+			recipient=@Recipient(name="#user.fullName", address="#user.emailAddress"),
+			subject=@Subject(
+				template="Registration Details of {#fullName}", 
+				models=@Model(name="fullName", expression="#user.fullName")
+			),
+			content=@Content(
+				template="Hello {#user.fullName},\n\n Your account already registered on JOS, following details of your account's credentials.\n Your username is {#user.username} and password {#user.password}",
+				models=@Model(name="user", expression="#user")
+			)
+		)
+	})
+	public User registerUser(@Named("user") User user) {
 		Assert.notNull(user, "User parameter should not be null.");
 		Assert.isTrue(!isRegisteredUser(user.getUsername()), "Given username already registered for other user.");
 		LOGGER.debug("Register user");

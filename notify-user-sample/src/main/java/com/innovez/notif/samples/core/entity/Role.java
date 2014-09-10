@@ -23,6 +23,10 @@ public class Role implements Serializable {
 	@NotBlank
 	@Column(name="name")
 	private String name;
+	
+	@NotBlank
+	@Column(name="label")
+	private String label;
 
 	public Integer getId() {
 		return id;
@@ -36,6 +40,13 @@ public class Role implements Serializable {
 	}
 	public void setName(String name) {
 		this.name = name;
+	}
+	
+	public String getLabel() {
+		return label;
+	}
+	public void setLabel(String label) {
+		this.label = label;
 	}
 	
 	@Override

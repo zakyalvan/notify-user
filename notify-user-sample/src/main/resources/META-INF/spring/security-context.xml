@@ -15,6 +15,7 @@
 		<security:intercept-url pattern="/assets/**" access="permitAll()" />
 		<security:intercept-url pattern="/login" access="permitAll()" />
 		<security:intercept-url pattern="/reset-password" access="permitAll()" />
+		<security:intercept-url pattern="/users" method="GET" access="hasRole('ROLE_ADMIN')"/>
 		<security:intercept-url pattern="/**" access="isAuthenticated()" />
 	</security:http>
 	<security:authentication-manager>

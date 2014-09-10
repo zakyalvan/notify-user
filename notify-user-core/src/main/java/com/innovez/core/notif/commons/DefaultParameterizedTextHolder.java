@@ -20,7 +20,7 @@ import org.springframework.util.Assert;
 public class DefaultParameterizedTextHolder implements ParameterizedTextHolder {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultParameterizedTextHolder.class);
 	
-	private static final String DEFAULT_PLACEHOLDER_PREFIX = "\\{";
+	private static final String DEFAULT_PLACEHOLDER_PREFIX = "\\$\\{";
 	private static final String DEFAULT_PLACEHOLDER_SUFFIX = "\\}";
 	
 	private final String template;
@@ -39,7 +39,7 @@ public class DefaultParameterizedTextHolder implements ParameterizedTextHolder {
 		patternStringBuilder
 			.append("(")
 			.append(placeholderPrefix)
-			.append("([#a-zA-Z.\\(.*\\)]+)")
+			.append("([a-zA-Z.\\(.*\\)]+)")
 			.append(placeholderSuffix)
 			.append(")");
 		
@@ -52,15 +52,15 @@ public class DefaultParameterizedTextHolder implements ParameterizedTextHolder {
 	}
 	
 	@Override
-	public String evaluateContent(Map<String, Object> parameters) {
-		Assert.notNull(parameters, "Map parameters object (used as variable in evaluation context) should not be null"); 
+	public String evaluateContent(Map<String, Object> models) {
+		Assert.notNull(models, "Map models object (used as variable in evaluation context) should not be null"); 
 		
-		LOGGER.debug("Get content with parameters {}", parameters.toString());
+		LOGGER.debug("Evaluate content with models {}", models);
 		
 		ExpressionParser expressionParser = new SpelExpressionParser();
 		
 		StandardEvaluationContext evaluationContext = new StandardEvaluationContext(this);
-		evaluationContext.setVariables(parameters);
+		evaluationContext.setVariables(models);
 		
 		String templateString = template;
 		
@@ -68,7 +68,8 @@ public class DefaultParameterizedTextHolder implements ParameterizedTextHolder {
 		
 		Expression placeholderExpression = null;
 		while(templateMatcher.find()) {
-			placeholderExpression = expressionParser.parseExpression(templateMatcher.group(2));
+			String expressionString = String.format("#%s", templateMatcher.group(2));
+			placeholderExpression = expressionParser.parseExpression(expressionString);
 			
 			LOGGER.debug("Evaluate expression against evaluation context, all non resolvable expression will be ignored");
 			try {

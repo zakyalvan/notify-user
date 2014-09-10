@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.innovez.core.notif.Notification;
 
 /**
+ * Manager for {@link DefinitionProcessor}
  * 
  * @author zakyalvan
  */

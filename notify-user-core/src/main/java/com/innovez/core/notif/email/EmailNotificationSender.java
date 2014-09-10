@@ -1,7 +1,5 @@
 package com.innovez.core.notif.email;
 
-import java.util.Date;
-
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
@@ -15,10 +13,6 @@ import org.springframework.util.Assert;
 import com.innovez.core.notif.Notification;
 import com.innovez.core.notif.NotificationException;
 import com.innovez.core.notif.commons.RecipientDetails;
-import com.innovez.core.notif.method.annotation.support.SimpleRecipientInfo;
-import com.innovez.core.notif.method.annotation.support.TemplatedContentInfo;
-import com.innovez.core.notif.method.annotation.support.TemplatedSubjectInfo;
-import com.innovez.core.notif.method.annotation.support.SimpleRecipientInfo.Type;
 import com.innovez.core.notif.send.NotificationSender;
 
 /**
@@ -32,7 +26,7 @@ public class EmailNotificationSender implements NotificationSender {
 
 	/**
 	 * Mail sender which responsible for sending email notification.
-	 * We specifically use java mail sender adapter so that we can send mime type.
+	 * We specifically use  spring's {@link JavaMailSender} adapter so that we can send mime type.
 	 */
 	private JavaMailSender mailSender;
 	
@@ -79,7 +73,7 @@ public class EmailNotificationSender implements NotificationSender {
 			throw new NotificationException("Can't send notification. Better check whether this notification sender can send given notification before you call this notification");
 		}
 		
-		LOGGER.debug("First prepare email notification message");
+		LOGGER.debug("Send email notification to {}, with subject {} and content {}", notification.getRecipient(), notification.getSubject(), notification.getContent());
 		MimeMessagePreparator messagePreparator = new MimeMessagePreparator() {
 			@Override
 			public void prepare(MimeMessage mimeMessage) throws Exception {		
@@ -92,7 +86,7 @@ public class EmailNotificationSender implements NotificationSender {
 				messageHelper.setTo(recipientAddress);
 				
 				messageHelper.setSubject(notification.getSubject());
-				messageHelper.setText(notification.getContent());
+				messageHelper.setText(notification.getContent(), true);
 				messageHelper.setSentDate(notification.getTimestamp());
 			}
 		};

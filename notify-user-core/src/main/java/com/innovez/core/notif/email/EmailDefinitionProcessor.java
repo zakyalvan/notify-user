@@ -21,9 +21,9 @@ public class EmailDefinitionProcessor implements DefinitionProcessor {
 		Set<Notification> notifications = new HashSet<Notification>();
 		for(RecipientDetails recipient : definition.getRecipients()) {
 			notifications.add(new EmailNotification(
-					recipient, 
-					definition.getSubject().getTemplateHolder().evaluateContent(definition.getSubject().getModels()), 
-					definition.getContent().getTemplateHolder().evaluateContent(definition.getContent().getModels()))
+				recipient, 
+				definition.getSubject().getTemplateHolder().evaluateContent(definition.getSubject().getModels()), 
+				definition.getContent().getTemplateHolder().evaluateContent(definition.getContent().getModels()))
 			);
 		}
 		return notifications;

@@ -8,7 +8,7 @@
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<title>Login Page</title>
+		<title>Register User</title>
 		
 		<!-- Bootstrap -->
 		<link href="/assets/css/bootstrap.min.css" rel="stylesheet">
@@ -30,7 +30,7 @@
 						<form:input path="fullName" id="fullName" type="text" class="form-control" placeholder="Full Name" />
 					</div>
 					<div class="form-group col-sm-6">
-						<label for="emailAddress">Email address</label>
+						<label for="emailAddress">Email Address</label>
 						<form:input path="emailAddress" id="emailAddress" type="email" class="form-control" placeholder="Email Address" />
 					</div>
 				</div>
@@ -47,10 +47,11 @@
 				<div class="row">
 					<div class="form-group col-sm-6">
 						<label for="emailAddress">Roles</label>
-						<form:select path="roles" id="roles" class="form-control" items="${roles}" itemValue="id" itemLabel="name"></form:select>
+						<form:select path="roles" id="roles" class="form-control" items="${roles}" itemValue="id" itemLabel="label" />
 					</div>
 				</div>
 				<button type="submit" class="btn btn-primary">Register</button>
+				<a href="${usersBaseUrl}" class="btn btn-warning">Cancel</a>
 			</form:form>
 		</div>
 

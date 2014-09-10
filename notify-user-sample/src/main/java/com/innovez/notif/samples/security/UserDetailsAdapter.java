@@ -64,4 +64,14 @@ public class UserDetailsAdapter implements UserDetails {
 	public boolean isEnabled() {
 		return enabled;
 	}
+
+	@Override
+	public String toString() {
+		return "UserDetailsAdapter [username=" + username + ", password="
+				+ password + ", authorities=" + authorities
+				+ ", accountNonExpired=" + accountNonExpired
+				+ ", accountNonLocked=" + accountNonLocked
+				+ ", credentialsNonExpired=" + credentialsNonExpired
+				+ ", enabled=" + enabled + "]";
+	}
 }
